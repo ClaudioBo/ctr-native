@@ -87,7 +87,6 @@ target_compile_definitions(ctr_native PRIVATE
     REBUILD_PS1
     USE_EXTENDED_PRIM_POINTERS=0
     USE_PCDRV
-    USE_MOREPRIM
     BUILD=926
     CTR_INTERNAL
 )

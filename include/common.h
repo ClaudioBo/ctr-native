@@ -128,7 +128,6 @@ enum HotReloadSteps
 // PC-only, always use this
 #ifdef REBUILD_PC
 #define USE_PCDRV
-#define USE_MOREPRIM
 #endif
 
 

@@ -189,15 +189,9 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 		// ========== Alloc Prim + OT ================
 
 
-#ifndef USE_MOREPRIM
 		// OG game
 		DECOMP_MainInit_PrimMem(gGT);
 		DECOMP_MainInit_OTMem(gGT);
-#else
-		// Reversed order, for RAM optimizations
-		DECOMP_MainInit_OTMem(gGT);
-		DECOMP_MainInit_PrimMem(gGT, 0xA000);
-#endif
 
 		// RAM optimization, never call DECOMP_MainInit_JitPoolsNew
 		// in Stage 0, just no point, and also ptrMap in DRAM files
@@ -596,11 +590,6 @@ int DECOMP_LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigH
 		// because now ptrMap already loaded and realloc'd
 		DECOMP_MEMPACK_SwapPacks(0);
 		DECOMP_MainInit_JitPoolsNew(gGT);
-
-#ifdef USE_MOREPRIM
-		// Stage 7: Fill remaining heap
-		DECOMP_MainInit_PrimMem(gGT, 0);
-#endif
 
 		if ((gGT->gameMode2 & LEV_SWAP) == 0)
 			break;

@@ -7,7 +7,6 @@ CompileFlags:
     - -DREBUILD_PS1
     - -DUSE_EXTENDED_PRIM_POINTERS=0
     - -DUSE_PCDRV
-    - -DUSE_MOREPRIM
     - -DCTR_INTERNAL
     - -Iinclude
     - -Iexternals/PsyCross/include
