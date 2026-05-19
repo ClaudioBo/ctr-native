@@ -165,7 +165,6 @@ int main(int argc, char *argv[])
 	g_cfg_controllerToSlotMapping[0] = 0;
 
 	g_dbg_gameDebugKeys = PsyXKeyboardHandler;
-	memset(&g_cfg_keyboardMapping, 0, sizeof(g_cfg_keyboardMapping));
 
 	int result = DECOMP_main();
 
@@ -206,10 +205,10 @@ void Platform_InitFilesystem(const char *disc_image)
 	PsyX_CDFS_Init(disc_image, 0, 0);
 }
 
-// NOTE(aalhendi): stub to make compile work for now
 int NikoGetEnterKey(void)
 {
-	return 0;
+	const u_char *kb = SDL_GetKeyboardState(NULL);
+	return (kb && kb[SDL_SCANCODE_RETURN]) ? 1 : 0;
 }
 
 // NOTE(aalhendi): PS1 VSync emulation; game's primary frame throttle.
