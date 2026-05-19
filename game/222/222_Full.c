@@ -1,6 +1,6 @@
 #include <common.h>
 
-static int str_number = 0x20; // " \0"
+static int str_number222 = 0x20; // " \0"
 extern struct RectMenu menu222;
 
 // 3528
@@ -133,7 +133,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 					}
 
 					if (hudC->scale[0] == 0x800)
-						OtherFX_Play(0x67, 1);
+						DECOMP_OtherFX_Play(0x67, 1);
 
 					// original code said < 0x2200, but the
 					// actual desired value is 0x2400, needs
@@ -163,7 +163,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 
 					txtColor = (gGT->timer & 1) ? 0xFFFF8003 : 0xFFFF8004;
 
-					DecalFont_DrawLine(sdata->lngStrings[0x16F], txtPos[0], txtPos[1], 1, txtColor);
+					DECOMP_DecalFont_DrawLine(sdata->lngStrings[0x16F], txtPos[0], txtPos[1], 1, txtColor);
 				}
 
 				DECOMP_UI_Lerp2D_Linear(&letterPos[0], lerpStartX, lerpStartY, lerpEndX, lerpEndY, elapsedFrames, 8);
@@ -297,10 +297,10 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 			// interpolate fly-in
 			DECOMP_UI_Lerp2D_Linear(&letterPos[0], lerpStartX, 0x60, lerpEndX, 0x60, currFrame, 10);
 
-			str_number = (char)i + '1';
+			str_number222 = (char)i + '1';
 
 			// print a single character, a number 1-8,
-			DecalFont_DrawLine((char *)&str_number, letterPos[0] + 0x20, 0x5f, 2, 4);
+			DECOMP_DecalFont_DrawLine((char *)&str_number222, letterPos[0] + 0x20, 0x5f, 2, 4);
 
 			// Draw the driver's character icon
 			DECOMP_UI_DrawDriverIcon(
@@ -330,7 +330,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 		short posX = (numPlyr < 2) ? 0xbe : 100;
 
 		// PRESS * TO CONTINUE
-		DecalFont_DrawLine(sdata->lngStrings[0xC9], 0x100, posX, 1, 0xffff8000);
+		DECOMP_DecalFont_DrawLine(sdata->lngStrings[0xC9], 0x100, posX, 1, 0xffff8000);
 
 		// If you do not "Press X to continue"
 		if ((sdata->AnyPlayerTap & 0x50) == 0)
@@ -339,7 +339,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 		// If you are here, it means you pressed X to continue
 
 		// clear gamepad input
-		RECTMENU_ClearInput();
+		DECOMP_RECTMENU_ClearInput();
 
 		sdata->menuReadyToPass = 0;
 		sdata->framesSinceRaceEnded = 0;
@@ -363,7 +363,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 		// End of Race based on number of players (1 or more)
 		menu222.posY_curr = (numPlyr == 1) ? 170 : 108;
 
-		RECTMENU_Show(&menu222);
+		DECOMP_RECTMENU_Show(&menu222);
 
 		// record that the menu is drawing
 		sdata->menuReadyToPass |= 1;
@@ -375,7 +375,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 		return;
 
 	// PRESS * TO CONTINUE
-	DecalFont_DrawLine(sdata->lngStrings[0xc9], 0x100, 0xbe, 1, 0xffff8000);
+	DECOMP_DecalFont_DrawLine(sdata->lngStrings[0xc9], 0x100, 0xbe, 1, 0xffff8000);
 
 	// If you have not pressed X
 	if ((sdata->AnyPlayerTap & 0x50) == 0)
@@ -383,7 +383,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 
 	// === If Pressed X ===
 
-	RECTMENU_ClearInput();
+	DECOMP_RECTMENU_ClearInput();
 
 	sdata->Loading.OnBegin.AddBitsConfig0 |= ADVENTURE_ARENA;
 	sdata->Loading.OnBegin.RemBitsConfig0 |= ADVENTURE_BOSS;
@@ -397,7 +397,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 
 	if (!boolWin)
 	{
-		RECTMENU_Show(&data.menuRetryExit);
+		DECOMP_RECTMENU_Show(&data.menuRetryExit);
 		sdata->menuReadyToPass |= 1;
 		return;
 	}
@@ -473,7 +473,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 		gGT->podiumRewardID = STATIC_TROPHY;
 	}
 
-	MainRaceTrack_RequestLoad(levSpawn);
+	DECOMP_MainRaceTrack_RequestLoad(levSpawn);
 }
 
 void DECOMP_AA_EndEvent_DisplayTime(short driverId, short param_2)
@@ -545,7 +545,7 @@ void DECOMP_AA_EndEvent_DisplayTime(short driverId, short param_2)
 		sdata->numIconsEOR = numPlyr + gGT->numBotsNextGame;
 
 		// clear gamepad input (for menus)
-		RECTMENU_ClearInput();
+		DECOMP_RECTMENU_ClearInput();
 	}
 
 	tenseconds = (framesElapsed + param_2 > 300);
@@ -649,7 +649,7 @@ void DECOMP_AA_EndEvent_DisplayTime(short driverId, short param_2)
 	r.h += 6;
 
 	// Draw 2D Menu rectangle background
-	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.startPlusFour);
+	DECOMP_RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.startPlusFour);
 	return;
 }
 

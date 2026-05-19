@@ -36,6 +36,7 @@ void RR_EndEvent_DrawMenu();
 void AA_EndEvent_DrawMenu();
 void TT_EndEvent_DrawMenu();
 void CC_EndEvent_DrawMenu();
+void OVR_Region1(void);
 void CS_BoxScene_InstanceSplitLines();
 void RB_Player_ToggleInvisible();
 void RB_Player_ToggleFlicker();
@@ -537,10 +538,10 @@ void RenderAllHUD(struct GameTracker *gGT)
 						return;
 					}
 
-// PC can't share address spaces
-// and PS1 rebuild wont have the funcs
-#ifndef REBUILD_PS1
-
+#if defined(CTR_NATIVE)
+					// NOTE(aalhendi): Preserve the original OVR_Region1 overlay-entry contract with a dispatcher.
+					OVR_Region1();
+#elif !defined(REBUILD_PS1)
 					// temporary, until we rewrite MainGameEnd_Initialize
 					if ((gGT->gameMode1 & RELIC_RACE) == 0)
 					{

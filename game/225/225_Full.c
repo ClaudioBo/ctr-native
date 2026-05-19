@@ -104,7 +104,7 @@ void DECOMP_VB_EndEvent_DrawMenu(void)
 	// Disable drawing lines between multiplayer screens
 	gGT->renderFlags &= ~(0x8000);
 
-	RaceFlag_SetFullyOnScreen();
+	DECOMP_RaceFlag_SetFullyOnScreen();
 
 	if (sdata->framesSinceRaceEnded <= 25)
 	{
@@ -124,10 +124,10 @@ void DECOMP_VB_EndEvent_DrawMenu(void)
 	iVar14 = yCoord + 0x28;
 
 	// "Versus" or "Battle"
-	DecalFont_DrawLine(sdata->lngStrings[iVar10], pos[0], pos[1], 1, 0xffff8000);
+	DECOMP_DecalFont_DrawLine(sdata->lngStrings[iVar10], pos[0], pos[1], 1, 0xffff8000);
 
 	// STANDINGS
-	DecalFont_DrawLine(sdata->lngStrings[0xCA], pos[0], (pos[1] + 0x11), 1, 0xffff8000);
+	DECOMP_DecalFont_DrawLine(sdata->lngStrings[0xCA], pos[0], (pos[1] + 0x11), 1, 0xffff8000);
 
 	iVar10 = uStack96;
 	iVar11 = 0;
@@ -168,18 +168,19 @@ void DECOMP_VB_EndEvent_DrawMenu(void)
 				uStack112 = VsPosY_Config[VsPosY_NUM * VsConfigIndex + uStack88];
 
 				// Draw character icon
-				DecalHUD_DrawPolyFT4(gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[gGT->drivers[gGT->battleSetup.unk1dc8[iVar11]]->driverID]].iconID],
+				DECOMP_DecalHUD_DrawPolyFT4(
+				    gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[gGT->drivers[gGT->battleSetup.unk1dc8[iVar11]]->driverID]].iconID],
 
-				                     // Position X and Position Y
-				                     pos[0], uStack112,
+				    // Position X and Position Y
+				    pos[0], uStack112,
 
-				                     // pointer to PrimMem struct
-				                     &gGT->backBuffer->primMem,
+				    // pointer to PrimMem struct
+				    &gGT->backBuffer->primMem,
 
-				                     // pointer to OT mem
-				                     gGT->pushBuffer_UI.ptrOT,
+				    // pointer to OT mem
+				    gGT->pushBuffer_UI.ptrOT,
 
-				                     1, 0x1000);
+				    1, 0x1000);
 			}
 
 			// if battle mode
@@ -197,16 +198,16 @@ void DECOMP_VB_EndEvent_DrawMenu(void)
 						iVar6 = sVar9;
 						sVar9 = sVar9 + 1;
 
-						DecalHUD_DrawPolyFT4(gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[gGT->drivers[iVar10]->driverID]].iconID], pos[0],
-						                     sVar5 + iVar6 * 0x1b,
+						DECOMP_DecalHUD_DrawPolyFT4(gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[gGT->drivers[iVar10]->driverID]].iconID], pos[0],
+						                            sVar5 + iVar6 * 0x1b,
 
-						                     // pointer to PrimMem struct
-						                     &gGT->backBuffer->primMem,
+						                            // pointer to PrimMem struct
+						                            &gGT->backBuffer->primMem,
 
-						                     // pointer to OT mem
-						                     gGT->pushBuffer_UI.ptrOT,
+						                            // pointer to OT mem
+						                            gGT->pushBuffer_UI.ptrOT,
 
-						                     1, 0x1000);
+						                            1, 0x1000);
 					}
 				}
 
@@ -253,7 +254,7 @@ void DECOMP_VB_EndEvent_DrawMenu(void)
 
 					// Draw string
 					// todo: replace 0x1f800000 with reference to scratchpad
-					DecalFont_DrawLine((char *)0x1f800000, (pos[0] + 0x79), ((uStack112 - (iVar6 * 4 + -0xd)) + iVar10 * 8), 2, uVar7);
+					DECOMP_DecalFont_DrawLine((char *)0x1f800000, (pos[0] + 0x79), ((uStack112 - (iVar6 * 4 + -0xd)) + iVar10 * 8), 2, uVar7);
 				}
 			}
 
@@ -280,7 +281,7 @@ void DECOMP_VB_EndEvent_DrawMenu(void)
 
 			// Draw String
 			// todo: replace 0x1f800000 with reference to scratchpad
-			DecalFont_DrawLine((char *)0x1f800000, (pos[0] - 0x24), (uStack112 + 5), 1, 0xffff8000);
+			DECOMP_DecalFont_DrawLine((char *)0x1f800000, (pos[0] - 0x24), (uStack112 + 5), 1, 0xffff8000);
 		}
 	}
 
@@ -360,7 +361,7 @@ void DECOMP_VB_EndEvent_DrawMenu(void)
 		endMenu = ((gGT->gameMode1 & 0x20) == 0) ? &menuVS : &menuBattle;
 
 		// Make Menu Box appear based on the game mode
-		RECTMENU_Show(endMenu);
+		DECOMP_RECTMENU_Show(endMenu);
 
 		sdata->menuReadyToPass |= 1;
 	}

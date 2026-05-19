@@ -440,6 +440,7 @@
 #include "game/UI/UI_45_RenderFrame_AdvHub.c"
 #include "game/UI/UI_46_RenderFrame_CrystChall.c"
 #include "game/UI/UI_53_RaceEnd_GetDriverClock.c"
+#include "game/UI/UI_55_RaceEnd_MenuProc.c"
 
 #include "game/Vehicle/VehBirth_0_TeleportSelf.c"
 #include "game/Vehicle/VehBirth_1_TeleportAll.c"
@@ -502,6 +503,14 @@
 #include "game/Vehicle/VehTalkMask_4_End.c"
 
 #include "game/Vector/Vector_1_SpecLightSpin3D.c"
+
+#include "game/221/221_Full.c"
+#include "game/222/222_Full.c"
+#include "game/223/223_Full.c"
+#include "game/224/224_Full.c"
+#include "game/225/225_Full.c"
+
+#include "game/221_225_EndEvent.c"
 
 #include "game/230/R230.c"
 #include "game/230/D230.c"

@@ -84,7 +84,7 @@ void DECOMP_CC_EndEvent_DrawMenu()
 			lngIndex = 0x16c; // TRY AGAIN
 
 		// YOU WIN, or TRY AGAIN
-		DecalFont_DrawLine(sdata->lngStrings[lngIndex], posXY[0] + 0x33, posXY[1] + 8, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
+		DECOMP_DecalFont_DrawLine(sdata->lngStrings[lngIndex], posXY[0] + 0x33, posXY[1] + 8, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
 	}
 
 	// Fly from Left,
@@ -97,7 +97,7 @@ void DECOMP_CC_EndEvent_DrawMenu()
 		                        elapsedFrames, 0x14);
 
 		// TIME REMAINING
-		DecalFont_DrawLine(sdata->lngStrings[0x16D], posXY[0], posXY[1], FONT_BIG, (JUSTIFY_CENTER | ORANGE));
+		DECOMP_DecalFont_DrawLine(sdata->lngStrings[0x16D], posXY[0], posXY[1], FONT_BIG, (JUSTIFY_CENTER | ORANGE));
 
 		DECOMP_UI_DrawLimitClock(posXY[0] - 0x33, posXY[1] + 0x11, FONT_BIG);
 	}
@@ -113,7 +113,7 @@ void DECOMP_CC_EndEvent_DrawMenu()
 			return;
 
 		// PRESS * TO CONTINUE
-		DecalFont_DrawLine(sdata->lngStrings[0xC9], 0x100, 0xbe, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
+		DECOMP_DecalFont_DrawLine(sdata->lngStrings[0xC9], 0x100, 0xbe, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
 
 		// if still waiting to press X/O, quit function
 		if ((sdata->AnyPlayerTap & (BTN_CROSS | BTN_CIRCLE)) == 0)
@@ -121,8 +121,8 @@ void DECOMP_CC_EndEvent_DrawMenu()
 
 		// if first frame of pressing X/O,
 		// open the Retry/ExitToMap menu
-		RECTMENU_ClearInput();
-		RECTMENU_Show(&menu221);
+		DECOMP_RECTMENU_ClearInput();
+		DECOMP_RECTMENU_Show(&menu221);
 		sdata->menuReadyToPass = 1;
 		return;
 	}
@@ -141,7 +141,7 @@ void DECOMP_CC_EndEvent_DrawMenu()
 	// variable re-use posXY[0]
 
 	// CTR TOKEN AWARDED
-	DecalFont_DrawLine(sdata->lngStrings[0x16F], posXY[0], 0xA2, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
+	DECOMP_DecalFont_DrawLine(sdata->lngStrings[0x16F], posXY[0], 0xA2, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
 
 	// make token visible
 	tokenInst->flags &= ~(HIDE_MODEL);
@@ -164,11 +164,11 @@ void DECOMP_CC_EndEvent_DrawMenu()
 	// play unlock sound after exactly 1 second
 	else if (elapsedFrames == 30)
 	{
-		OtherFX_Play(0x67, 1);
+		DECOMP_OtherFX_Play(0x67, 1);
 	}
 
 	// PRESS * TO CONTINUE
-	DecalFont_DrawLine(sdata->lngStrings[0xC9], 0x100, 0xbe, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
+	DECOMP_DecalFont_DrawLine(sdata->lngStrings[0xC9], 0x100, 0xbe, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
 
 	// if still waiting to press X/O, quit function
 	if ((sdata->AnyPlayerTap & (BTN_CROSS | BTN_CIRCLE)) == 0)
@@ -178,7 +178,7 @@ void DECOMP_CC_EndEvent_DrawMenu()
 	// unlock token and leave level
 
 	// reset
-	RECTMENU_ClearInput();
+	DECOMP_RECTMENU_ClearInput();
 	sdata->framesSinceRaceEnded = 0;
 
 	// loading flags
@@ -189,7 +189,7 @@ void DECOMP_CC_EndEvent_DrawMenu()
 	UNLOCK_ADV_BIT(adv->rewards, bitIndex);
 
 	// go back to adv hub
-	MainRaceTrack_RequestLoad(gGT->prevLEV);
+	DECOMP_MainRaceTrack_RequestLoad(gGT->prevLEV);
 
 	return;
 }
