@@ -30,7 +30,42 @@
 #include "game/CAMERA/CAM_05_Path_Move.c"
 #include "game/CAMERA/CAM_06_StartOfRace.c"
 #include "game/CAMERA/CAM_10_ProcessTransition.c"
+#include "game/CAMERA/CAM_03_FindClosestQuadblock.c"
+#include "game/CAMERA/CAM_09_StartLine_FlyIn_FixY.c"
+#include "game/CAMERA/CAM_11_FollowDriver_AngleAxis.c"
+#include "game/CAMERA/CAM_12_StartLine_FlyIn.c"
+#include "game/CAMERA/CAM_13_FollowDriver_TrackPath.c"
+#include "game/CAMERA/CAM_14_LookAtPosition.c"
+#include "game/CAMERA/CAM_15_FollowDriver_Spin360.c"
 #include "game/CAMERA/CAM_16_SetDesiredPosRot.c"
+
+#define CAM_FindClosestQuadblock   DECOMP_CAM_FindClosestQuadblock
+#define CAM_FollowDriver_AngleAxis DECOMP_CAM_FollowDriver_AngleAxis
+#define CAM_FollowDriver_Normal    DECOMP_CAM_FollowDriver_Normal
+#define CAM_FollowDriver_Spin360   DECOMP_CAM_FollowDriver_Spin360
+#define CAM_FollowDriver_TrackPath DECOMP_CAM_FollowDriver_TrackPath
+#define CAM_LookAtPosition         DECOMP_CAM_LookAtPosition
+#define CAM_MapRange_PosPoints     DECOMP_CAM_MapRange_PosPoints
+#define CAM_ProcessTransition      DECOMP_CAM_ProcessTransition
+#define CAM_StartLine_FlyIn        DECOMP_CAM_StartLine_FlyIn
+#define MATH_Cos                   DECOMP_MATH_Cos
+#define MATH_Sin                   DECOMP_MATH_Sin
+#define VehCalc_MapToRange         DECOMP_VehCalc_MapToRange
+#include "game/CAMERA/CAM_17_FollowDriver_Normal.c"
+#include "game/CAMERA/CAM_18_MapRange_PosPoints.c"
+#include "game/CAMERA/CAM_19_ThTick.c"
+#undef VehCalc_MapToRange
+#undef MATH_Sin
+#undef MATH_Cos
+#undef CAM_StartLine_FlyIn
+#undef CAM_ProcessTransition
+#undef CAM_MapRange_PosPoints
+#undef CAM_LookAtPosition
+#undef CAM_FollowDriver_TrackPath
+#undef CAM_FollowDriver_Spin360
+#undef CAM_FollowDriver_Normal
+#undef CAM_FollowDriver_AngleAxis
+#undef CAM_FindClosestQuadblock
 
 #include "game/CDSYS/CDSYS_00_Init.c"
 #include "game/CDSYS/CDSYS_01_GetFilePosInt.c"
@@ -53,6 +88,7 @@
 #include "game/CDSYS/CDSYS_18_XAPauseAtEnd.c"
 
 #include "game/COLL/COLL_00_LevModelMeta.c"
+#include "game/COLL/COLL_01_SearchBSP_CallbackQUADBLK.c"
 #include "game/COLL/COLL_06_SearchBSP_CallbackPARAM.c"
 
 #include "game/CTR/CTR_00_Box_DrawWirePrims.c"
@@ -296,6 +332,7 @@
 #include "game/MAIN/MainFrame_00_TogglePauseAudio.c"
 #include "game/MAIN/MainFrame_01_ResetDB.c"
 #include "game/MAIN/MainFrame_02_GameLogic.c"
+#include "game/MAIN/MainFrame_07_VisMemFullFrame.c"
 #include "game/MAIN/MainFrame_07_RequestMaskHint.c"
 #include "game/MAIN/MainFrame_08_RenderFrame.c"
 

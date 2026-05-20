@@ -386,99 +386,15 @@ u_int DECOMP_main()
 			gGT->vSync_between_drawSync = 0;
 
 
-// NOTE(aalhendi): Native-only temporary camera/debug shim. This is not retail.
-// Keep it away from verified cutscene routes so overlay code owns the camera.
+// NOTE(aalhendi): Native-only XA/request shim. Camera ownership belongs to CAM_ThTick.
 #if defined(REBUILD_PS1) && defined(CTR_NATIVE)
-
-			gGT->hudFlags &= 0xfe;
-			if (gGT->levelID < GLACIER_PARK)
-				gGT->hudFlags |= 1;
 
 			if ((gGT->level1 != 0) && (gGT->levelID != MAIN_MENU_LEVEL) && (gGT->levelID != ADVENTURE_GARAGE) && (gGT->levelID != NAUGHTY_DOG_CRATE))
 			{
-				int tap = gGS->gamepad[0].buttonsTapped;
 				int held = gGS->gamepad[0].buttonsHeldCurrFrame;
 
-				if (
-				    // on adv hub, freeze camera for a few frames
-				    (gGT->trafficLightsTimer > 3800) ||
-
-				    // on race tracks, wait for full countdown
-				    ((gGT->trafficLightsTimer > 0) && (gGT->levelID < GEM_STONE_VALLEY)))
-				{
-					// temporary workaround, cause if state
-					// is not zero, then loading screen breaks
-					// if we pause and quit
-					sdata->XA_State = 0;
-
-					for (int k = 0; k < gGT->numPlyrCurrGame; k++)
-					{
-						gGT->pushBuffer[k].pos[0] = gGT->level1->DriverSpawn[k].pos[0];
-						gGT->pushBuffer[k].pos[1] = gGT->level1->DriverSpawn[k].pos[1] + 0x20;
-						gGT->pushBuffer[k].pos[2] = gGT->level1->DriverSpawn[k].pos[2];
-
-						gGT->pushBuffer[k].rot[0] = gGT->level1->DriverSpawn[k].rot[0] + 0x800;
-						gGT->pushBuffer[k].rot[1] = gGT->level1->DriverSpawn[k].rot[1] - 0x400;
-						gGT->pushBuffer[k].rot[2] = 0; // required
-
-						// move backwards a little
-						gGT->pushBuffer[k].pos[2] += (0xc0 * DECOMP_MATH_Cos(gGT->pushBuffer[k].rot[1])) >> 0xC;
-						gGT->pushBuffer[k].pos[0] += (0xc0 * DECOMP_MATH_Sin(gGT->pushBuffer[k].rot[1])) >> 0xC;
-					}
-				}
-
-				else if ((gGT->gameMode1 & PAUSE_ALL) == 0)
-				{
-					// temporary workaround, cause XA IRQ doesn't happen,
-					// must be zero for level music to work
-					sdata->XA_State = 0;
-
-					int dirUD = 0;
-					int dirLR = 0;
-					int dirCT = 0;
-
-					if ((held & BTN_UP) != 0)
-						dirUD = -1;
-					if ((held & BTN_DOWN) != 0)
-						dirUD = 1;
-					gGT->pushBuffer[0].pos[2] += (dirUD * 0x40 * DECOMP_MATH_Cos(gGT->pushBuffer[0].rot[1])) >> 0xC;
-					gGT->pushBuffer[0].pos[0] += (dirUD * 0x40 * DECOMP_MATH_Sin(gGT->pushBuffer[0].rot[1])) >> 0xC;
-
-					if ((held & BTN_LEFT) != 0)
-						dirLR = 1;
-					if ((held & BTN_RIGHT) != 0)
-						dirLR = -1;
-					gGT->pushBuffer[0].rot[1] += dirLR * 0x20;
-
-					if ((held & BTN_CROSS) != 0)
-						dirCT = -1;
-					if ((held & BTN_TRIANGLE) != 0)
-						dirCT = 1;
-					gGT->pushBuffer[0].pos[1] += dirCT * 0x20;
-
-					if ((tap & BTN_R1) != 0)
-					{
-						if (gGT->drivers[0]->heldItemID == 0xF)
-						{
-							gGT->drivers[0]->heldItemID = 0;
-							gGT->drivers[0]->numHeldItems = 1;
-						}
-
-						else
-						{
-							gGT->drivers[0]->heldItemID++;
-						}
-					}
-
-					if ((tap & BTN_L1) != 0)
-					{
-						if (gGT->drivers[0]->heldItemID != 0xF)
-							gGT->drivers[0]->heldItemID--;
-
-						if (gGT->drivers[0]->heldItemID < 0)
-							gGT->drivers[0]->heldItemID = 0;
-					}
-				}
+				// TODO(aalhendi): Replace this once native XA IRQ/state handling is wired.
+				sdata->XA_State = 0;
 
 				if ((held & BTN_START) != 0)
 				{

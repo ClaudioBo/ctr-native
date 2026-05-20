@@ -16,8 +16,8 @@ void DECOMP_VehBirth_TeleportSelf(struct Driver *d, u_char spawnFlag, int spawnP
 	struct Level *level1 = gGT->level1;
 	struct Instance *dInst = d->instSelf;
 
-#ifndef REBUILD_PS1
-	struct ScratchpadStruct *sps = (struct ScratchpadStruct *)0x1f800108;
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
+	struct ScratchpadStruct *sps = CTR_SCRATCHPAD_PTR(struct ScratchpadStruct, 0x108);
 #else
 	char scratchpad[0x1000];
 	struct ScratchpadStruct *sps = (struct ScratchpadStruct *)&scratchpad[0];
@@ -164,8 +164,9 @@ void DECOMP_VehBirth_TeleportSelf(struct Driver *d, u_char spawnFlag, int spawnP
 		// so lap doesn't count when race starts
 		d->actionsFlagSet |= 0x1000000;
 
-#ifndef REBUILD_PS1
-		d->distanceToFinish_checkpoint = level1->ptr_restart_points[0].distToFinish << 3;
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
+		if (level1->ptr_restart_points != NULL)
+			d->distanceToFinish_checkpoint = level1->ptr_restart_points[0].distToFinish << 3;
 #endif
 
 		// get coords where driver based on driver order (0-7)
@@ -186,7 +187,7 @@ void DECOMP_VehBirth_TeleportSelf(struct Driver *d, u_char spawnFlag, int spawnP
 	d->rotCurr.y = (rotArr[1] + rotDeltaY) & 0xfff;
 	d->rotCurr.z = rotArr[2];
 
-#ifdef REBUILD_PS1
+#if defined(REBUILD_PS1) && !defined(CTR_NATIVE)
 
 	for (int i = 0; i < 7; i++)
 		sdata->kartSpawnOrderArray[i] = i;
@@ -210,62 +211,81 @@ void DECOMP_VehBirth_TeleportSelf(struct Driver *d, u_char spawnFlag, int spawnP
 	ConvertRotToMatrix(&dInst->matrix.m, &d->rotCurr.x);
 
 #else
-
-	// search for ground and wall flags,
-	// exclude no flags (take 'any' ground/wall)
-	// collision triangles, 2 (low-LOD), 8 (hi-LOD)
-	sps->Union.QuadBlockColl.qbFlagsWanted = 0x3000;
-	sps->Union.QuadBlockColl.qbFlagsIgnored = 0;
-	sps->Union.QuadBlockColl.searchFlags = (gGT->numPlyrCurrGame > 3) ? 2 : 0;
-	sps->ptr_mesh_info = level1->ptr_mesh_info;
-
-	COLL_SearchBSP_CallbackQUADBLK(&posTop[0], &posBottom[0], sps, 0);
-
-	// if collision was not found
-	if (sps->boolDidTouchQuadblock == 0)
+#ifdef CTR_NATIVE
+	if ((level1->ptr_restart_points == NULL) || (level1->ptr_mesh_info == NULL) || (level1->ptr_mesh_info->ptrQuadBlockArray == NULL) ||
+	    (level1->ptr_mesh_info->ptrVertexArray == NULL))
 	{
-		d->AxisAngle3_normalVec[0] = 0;
-		d->AxisAngle3_normalVec[1] = 0x1000;
-		d->AxisAngle3_normalVec[2] = 0;
+		// NOTE(aalhendi): Native menu/cutscene levels can birth drivers without
+		// track collision data. Keep the rebuild spawn path for those scenes.
+		d->posCurr.x = posRot->pos[0] << 8;
+		d->posCurr.y = (posRot->pos[1] - 0x40) << 8;
+		d->posCurr.z = posRot->pos[2] << 8;
+
+		dInst->matrix.t[0] = posRot->pos[0];
+		dInst->matrix.t[1] = posRot->pos[1] - 0x40;
+		dInst->matrix.t[2] = posRot->pos[2];
+
+		ConvertRotToMatrix(&dInst->matrix.m, &d->rotCurr.x);
 	}
-	// if it was found
 	else
+#endif
 	{
-		d->AxisAngle3_normalVec[0] = sps->Set2.normalVec[0];
-		d->AxisAngle3_normalVec[1] = sps->Set2.normalVec[1];
-		d->AxisAngle3_normalVec[2] = sps->Set2.normalVec[2];
-		d->lastValid = sps->Set2.ptrQuadblock;
+		// search for ground and wall flags,
+		// exclude no flags (take 'any' ground/wall)
+		// collision triangles, 2 (low-LOD), 8 (hi-LOD)
+		sps->Union.QuadBlockColl.qbFlagsWanted = 0x3000;
+		sps->Union.QuadBlockColl.qbFlagsIgnored = 0;
+		sps->Union.QuadBlockColl.searchFlags = (gGT->numPlyrCurrGame > 3) ? 2 : 0;
+		sps->ptr_mesh_info = level1->ptr_mesh_info;
+
+		COLL_SearchBSP_CallbackQUADBLK(&posTop[0], &posBottom[0], sps, 0);
+
+		// if collision was not found
+		if (sps->boolDidTouchQuadblock == 0)
+		{
+			d->AxisAngle3_normalVec[0] = 0;
+			d->AxisAngle3_normalVec[1] = 0x1000;
+			d->AxisAngle3_normalVec[2] = 0;
+		}
+		// if it was found
+		else
+		{
+			d->AxisAngle3_normalVec[0] = sps->Set2.normalVec[0];
+			d->AxisAngle3_normalVec[1] = sps->Set2.normalVec[1];
+			d->AxisAngle3_normalVec[2] = sps->Set2.normalVec[2];
+			d->lastValid = sps->Set2.ptrQuadblock;
+		}
+
+		// set all normal vectors to spawn
+		d->AxisAngle1_normalVec.x = d->AxisAngle3_normalVec[0];
+		d->AxisAngle2_normalVec[0] = d->AxisAngle3_normalVec[0];
+		d->AxisAngle1_normalVec.y = d->AxisAngle3_normalVec[1];
+		d->AxisAngle2_normalVec[1] = d->AxisAngle3_normalVec[1];
+		d->AxisAngle1_normalVec.z = d->AxisAngle3_normalVec[2];
+		d->AxisAngle2_normalVec[2] = d->AxisAngle3_normalVec[2];
+
+		// for (int i = 0; i < 1; i++) // maybe this is done two times, because it was a do-while?
+		{
+			// set normal vector to spawn
+			d->AxisAngle4_normalVec[0] = d->AxisAngle2_normalVec[0];
+			d->AxisAngle4_normalVec[1] = d->AxisAngle2_normalVec[1];
+			d->AxisAngle4_normalVec[2] = d->AxisAngle2_normalVec[2];
+			// iVar9 = iVar9 + 8;
+		}
+
+		// player structure X, Y, Z
+		d->posCurr.x = (int)(sps->Union.QuadBlockColl.hitPos[0]) << 8;
+		d->posCurr.y = (int)(sps->Union.QuadBlockColl.hitPos[1] + spawnPosY) * 0x100;
+		d->posCurr.z = (int)(sps->Union.QuadBlockColl.hitPos[2]) << 8;
+
+		// duplicate of coordinate variables
+		d->posPrev.x = d->posCurr.x;
+		d->posPrev.y = d->posCurr.y;
+		d->posPrev.z = d->posCurr.z;
+
+		// save quadblock height
+		d->quadBlockHeight = (int)sps->Union.QuadBlockColl.hitPos[1] << 8;
 	}
-
-	// set all normal vectors to spawn
-	d->AxisAngle1_normalVec.x = d->AxisAngle3_normalVec[0];
-	d->AxisAngle2_normalVec[0] = d->AxisAngle3_normalVec[0];
-	d->AxisAngle1_normalVec.y = d->AxisAngle3_normalVec[1];
-	d->AxisAngle2_normalVec[1] = d->AxisAngle3_normalVec[1];
-	d->AxisAngle1_normalVec.z = d->AxisAngle3_normalVec[2];
-	d->AxisAngle2_normalVec[2] = d->AxisAngle3_normalVec[2];
-
-	// for (int i = 0; i < 1; i++) // maybe this is done two times, because it was a do-while?
-	{
-		// set normal vector to spawn
-		d->AxisAngle4_normalVec[0] = d->AxisAngle2_normalVec[0];
-		d->AxisAngle4_normalVec[1] = d->AxisAngle2_normalVec[1];
-		d->AxisAngle4_normalVec[2] = d->AxisAngle2_normalVec[2];
-		// iVar9 = iVar9 + 8;
-	}
-
-	// player structure X, Y, Z
-	d->posCurr.x = (int)(sps->Union.QuadBlockColl.hitPos[0]) << 8;
-	d->posCurr.y = (int)(sps->Union.QuadBlockColl.hitPos[1] + spawnPosY) * 0x100;
-	d->posCurr.z = (int)(sps->Union.QuadBlockColl.hitPos[2]) << 8;
-
-	// duplicate of coordinate variables
-	d->posPrev.x = d->posCurr.x;
-	d->posPrev.y = d->posCurr.y;
-	d->posPrev.z = d->posCurr.z;
-
-	// save quadblock height
-	d->quadBlockHeight = (int)sps->Union.QuadBlockColl.hitPos[1] << 8;
 
 #endif
 

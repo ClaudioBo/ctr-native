@@ -7,7 +7,7 @@ void DECOMP_CAM_Init(struct CameraDC *cDC, int cameraID, struct Driver *d, struc
 	printf("camera init\n");
 #endif
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	DECOMP_PROC_BirthWithObject(0x30f, DECOMP_CAM_ThTick, 0, 0)->inst = (struct Instance *)cDC;
 #endif
 

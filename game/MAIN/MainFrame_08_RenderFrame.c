@@ -57,7 +57,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 
 	DECOMP_ElimBG_HandleState(gGT);
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	if ((gGT->renderFlags & 0x21) != 0)
 		MainFrame_VisMemFullFrame(gGT, gGT->level1);
 #endif
@@ -158,7 +158,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem 
 		{
 			// 226-229
 			// placeholder for DrawLevelOvr1P
-			TEST_226(0, &gGT->pushBuffer[i], gGT->level1->ptr_mesh_info, &gGT->backBuffer->primMem, 0,
+			TEST_226(0, &gGT->pushBuffer[i], gGT->level1->ptr_mesh_info, &gGT->backBuffer->primMem, gGT->visMem1->visFaceList[i],
 			         0); // waterEnvMap?
 
 			// placeholder for DrawSky_Full

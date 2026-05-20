@@ -6,7 +6,15 @@ void DECOMP_CAM_StartOfRace(struct CameraDC *cDC)
 	struct Level *level1 = gGT->level1;
 
 	// if fly-in camera data exists and there is only one screen
-	if ((2 < level1->cnt_restart_points)
+#ifdef CTR_NATIVE
+	// NOTE(aalhendi): Native-loaded levels currently expose the start-line
+	// camera path through SpawnType1 even when restart_points are not patched.
+	int hasFlyInCamera = (level1->ptrSpawnType1 != NULL) && (level1->ptrSpawnType1->count >= 4);
+#else
+	int hasFlyInCamera = (2 < level1->cnt_restart_points);
+#endif
+
+	if (hasFlyInCamera
 
 	    // byte budget
 	    && (gGT->numPlyrCurrGame == 1))

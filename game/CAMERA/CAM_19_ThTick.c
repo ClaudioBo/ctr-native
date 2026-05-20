@@ -452,15 +452,11 @@ SkipNewCameraEOR:
 								gte_ldv0((SVECTOR *)&cDC->transitionTo);
 								gte_rtv0();
 
-// get the result
-#define read_mt(r0, r1, r2)            \
-	__asm__ volatile("mfc2   %0, $25;" \
-	                 "mfc2   %1, $26;" \
-	                 "mfc2   %2, $27;" \
-	                 :                 \
-	                 : "r"(r0), "r"(r1), "r"(r2))
-
-								read_mt(uVar9, iVar7, iVar8);
+									VECTOR pathOffset;
+									gte_stlvnl(&pathOffset);
+									uVar9 = pathOffset.vx;
+									iVar7 = pathOffset.vy;
+									iVar8 = pathOffset.vz;
 
 								pb->pos[0] = scratchpad[0x144] + (short)uVar9;
 								pb->pos[1] = scratchpad[0x145] + (short)iVar7;

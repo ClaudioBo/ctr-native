@@ -1,7 +1,8 @@
 #include <common.h>
 
-void DECOMP_CAM_FollowDriver_Normal(struct CameraDC *cDC, struct Driver *d, struct PushBuffer *pb, int scratchpad, struct ZoomData *zoom)
+void DECOMP_CAM_FollowDriver_Normal(struct CameraDC *cDC, struct Driver *d, short *pushBuffer, int scratchpad, struct ZoomData *zoom)
 {
+	struct PushBuffer *pb = (struct PushBuffer *)pushBuffer;
 	struct GameTracker *gGT = sdata->gGT;
 	struct GamepadBuffer *pad = &sdata->gGamepads->gamepad[d->driverID];
 	char state;
