@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001d0c4-0x8001d610
 u32 COLL_FIXED_INSTANC_TestPoint(struct ScratchpadStruct *sps, struct BSP *node)
 {
 	u8 *spsBytes = (u8 *)sps;
@@ -143,7 +144,7 @@ u32 COLL_FIXED_INSTANC_TestPoint(struct ScratchpadStruct *sps, struct BSP *node)
 
 	radius = CollFixed_ReadS16(nodeBytes, 0x16);
 	radiusSquared = CollFixed_ReadS16(spsBytes, 6) + radius;
-	radiusSquared *= radiusSquared;
+	radiusSquared = CollFixed_MulLo(radiusSquared, radiusSquared);
 	distSquared = CollFixed_GteReadMAC1();
 	CollFixed_WriteS32(spsBytes, 0x1b8, radiusSquared);
 	CollFixed_WriteS32(spsBytes, 0x1bc, distSquared);

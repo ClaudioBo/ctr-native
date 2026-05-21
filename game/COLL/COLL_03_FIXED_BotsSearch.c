@@ -1,10 +1,11 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001d77c-0x8001d944
 void COLL_FIXED_BotsSearch(s16 *posCurr, s16 *posPrev, struct ScratchpadStruct *sps)
 {
 	char i;
 	s16 radius = sps->Input1.hitRadius;
-	int sqrRadius = radius * radius;
+	int sqrRadius = CollFixed_MulLo(radius, radius);
 	s16 deltaCurr;
 	s16 deltaPrev;
 
