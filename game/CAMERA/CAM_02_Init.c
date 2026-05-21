@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80018818-0x800188a8
 void DECOMP_CAM_Init(struct CameraDC *cDC, int cameraID, struct Driver *d, struct PushBuffer *pb)
 {
 // Naughty Dog debug printf
@@ -7,9 +8,7 @@ void DECOMP_CAM_Init(struct CameraDC *cDC, int cameraID, struct Driver *d, struc
 	printf("camera init\n");
 #endif
 
-#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
-	DECOMP_PROC_BirthWithObject(0x30f, DECOMP_CAM_ThTick, 0, 0)->inst = (struct Instance *)cDC;
-#endif
+	DECOMP_PROC_BirthWithObject(0x30f, DECOMP_CAM_ThTick, sdata->s_camera, NULL)->inst = (struct Instance *)cDC;
 
 	memset(cDC, 0, sizeof(struct CameraDC));
 
@@ -22,6 +21,5 @@ void DECOMP_CAM_Init(struct CameraDC *cDC, int cameraID, struct Driver *d, struc
 	// dont set cameraMode to zero,
 	// memset makes it already zero
 
-	// needed?
-	// cDC->flags |= 8;
+	cDC->flags |= 8;
 }

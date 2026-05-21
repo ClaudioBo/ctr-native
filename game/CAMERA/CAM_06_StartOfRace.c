@@ -1,23 +1,15 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80018d20-0x80018d9c
 void DECOMP_CAM_StartOfRace(struct CameraDC *cDC)
 {
 	struct GameTracker *gGT = sdata->gGT;
 	struct Level *level1 = gGT->level1;
 
 	// if fly-in camera data exists and there is only one screen
-#ifdef CTR_NATIVE
-	// NOTE(aalhendi): Native-loaded levels currently expose the start-line
-	// camera path through SpawnType1 even when restart_points are not patched.
-	int hasFlyInCamera = (level1->ptrSpawnType1 != NULL) && (level1->ptrSpawnType1->count >= 4);
-#else
 	int hasFlyInCamera = (2 < level1->cnt_restart_points);
-#endif
 
-	if (hasFlyInCamera
-
-	    // byte budget
-	    && (gGT->numPlyrCurrGame == 1))
+	if (hasFlyInCamera)
 	{
 		int flyInData = (int)level1->ptr_restart_points;
 		cDC->unk94 = 0;
@@ -33,15 +25,12 @@ void DECOMP_CAM_StartOfRace(struct CameraDC *cDC)
 
 		// if 1 or less screens
 		// set fly-in to last 165 frames, (5.25 seconds)
-
-		// ONLY patch this if used with PS1 asm patches,
-		// until the camera functions are really rewritten
 		cDC->unk8E = 0xA5;
-	}
-	else
-	{
-		// set animation to last one frame
-		cDC->unk8E = 1;
+		if (gGT->numPlyrCurrGame > 1)
+		{
+			// set animation to last one frame
+			cDC->unk8E = 1;
+		}
 	}
 
 	cDC->cameraMode = 0;

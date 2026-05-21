@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80018b18-0x80018ba0
 int DECOMP_CAM_Path_GetNumPoints(void)
 {
 	struct GameTracker *gGT;
@@ -32,5 +33,5 @@ int DECOMP_CAM_Path_GetNumPoints(void)
 		introCam += introCam[0] * 6 + 2;
 	}
 
-	return uVar4;
+	return (s16)uVar4;
 }
