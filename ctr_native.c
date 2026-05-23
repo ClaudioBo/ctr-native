@@ -23,8 +23,11 @@
 #endif
 
 #if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#define CTR_MEM_COMMIT      0x00001000
+#define CTR_MEM_RESERVE     0x00002000
+#define CTR_PAGE_READWRITE  0x04
+__declspec(dllimport) void *__stdcall VirtualAlloc(void *lpAddress, size_t dwSize, unsigned long flAllocationType, unsigned long flProtect);
+__declspec(dllimport) unsigned long __stdcall GetLastError(void);
 #endif
 
 #include "psx/types.h"
@@ -88,7 +91,7 @@ void Platform_InitScratchpad(void)
 	size_t scratchpadSize = CTR_SCRATCHPAD_MAP_SIZE;
 
 #if defined(_WIN32)
-	void *mapped = VirtualAlloc(scratchpad, scratchpadSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	void *mapped = VirtualAlloc(scratchpad, scratchpadSize, CTR_MEM_RESERVE | CTR_MEM_COMMIT, CTR_PAGE_READWRITE);
 	if (mapped == NULL)
 	{
 		fprintf(stderr, "[CTR Native] Failed to map PS1 scratchpad at %p: GetLastError=%lu\n", scratchpad, GetLastError());
