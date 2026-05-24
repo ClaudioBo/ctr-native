@@ -1,5 +1,9 @@
 #include <common.h>
 
+void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
+u16 DECOMP_RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th);
+void DECOMP_RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct MineWeapon *mw);
+
 void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 {
 	struct Instance *dInst;
@@ -242,7 +246,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		tw->frameCount_Blind = 0;
 		break;
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 	// TNT/Nitro
 	case 3:
 
@@ -251,7 +255,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		if (d->numWumpas >= 10)
 			modelID = PU_EXPLOSIVE_CRATE;
 
-		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, 0, SMALL, MINE, RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, 0, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 
 		dInst = d->instSelf;
 		d->instTntSend = weaponInst;
@@ -294,7 +298,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		mw->extraFlags = 0;
 
 		DECOMP_RB_MinePool_Add(mw);
-		VehPickupItem_PotionThrow(mw, weaponInst, flags);
+		DECOMP_VehPickupItem_PotionThrow(mw, weaponInst, flags);
 
 	RunMineCOLL:
 
@@ -326,7 +330,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		{
 			sps->Input1.modelID = (weaponInst->model->id) | 0x8000;
 
-			RB_Hazard_CollLevInst(sps, weaponTh);
+			DECOMP_RB_Hazard_CollLevInst(sps, weaponTh);
 
 			struct InstDef *instDef = sps->bspHitbox->data.hitbox.instDef;
 
@@ -340,7 +344,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 			else
 			{
-				RB_GenericMine_ThDestroy(weaponTh, weaponInst, mw);
+				DECOMP_RB_GenericMine_ThDestroy(weaponTh, weaponInst, mw);
 			}
 
 			sps->Union.QuadBlockColl.searchFlags = 0;
@@ -384,7 +388,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		if (d->numWumpas >= 10)
 			modelID = STATIC_BEAKER_RED;
 
-		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, 0, SMALL, MINE, RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, 0, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 
 		dInst = d->instSelf;
 
@@ -428,7 +432,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			flags |= 4;
 
 		DECOMP_RB_MinePool_Add(mw);
-		int ret = VehPickupItem_PotionThrow(mw, weaponInst, flags);
+		int ret = DECOMP_VehPickupItem_PotionThrow(mw, weaponInst, flags);
 
 		if (ret == 0)
 		{
@@ -447,6 +451,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		}
 		break;
 
+#ifndef REBUILD_PS1
 	// Shield Bubble
 	case 6:
 
@@ -495,10 +500,11 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		OtherFX_Play(0x57, 1);
 		break;
+#endif
 
 	// Mask
 	case 7:
-		VehPickupItem_MaskUseWeapon(d, 1);
+		DECOMP_VehPickupItem_MaskUseWeapon(d, 1);
 		break;
 
 	// Clock
@@ -541,6 +547,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		}
 		break;
 
+#ifndef REBUILD_PS1
 	// Warpball
 	case 9:
 
@@ -641,6 +648,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			p->unk18 = 250;
 
 		break;
+#endif
 #endif
 
 	// invisibility

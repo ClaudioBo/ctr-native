@@ -730,6 +730,7 @@
 
 #include "game/Vehicle/VehPickupItem_0_MaskBoolGoodGuy.c"
 #include "game/Vehicle/VehPickupItem_1_MaskUseWeapon.c"
+#include "game/Vehicle/VehPickupItem_3_PotionThrow.c"
 #include "game/Vehicle/VehPickupItem_4_ShootNow.c"
 #include "game/Vehicle/VehPickupItem_5_ShootOnCirclePress.c"
 #include "game/Vehicle/VehPickState_0_NewState.c"
