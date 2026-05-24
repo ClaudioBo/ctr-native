@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b42b4-0x800b43cc.
 void DECOMP_AH_MaskHint_SpawnParticles(s16 numParticles, struct ParticleEmitter *emSet, int maskAnim)
 
 {
@@ -21,20 +22,9 @@ void DECOMP_AH_MaskHint_SpawnParticles(s16 numParticles, struct ParticleEmitter 
 
 	for (i = 0; i < numParticles; i++)
 	{
-#ifdef REBUILD_PS1
-		particle = 0;
-		return;
-#else
 		particle = Particle_Init(0, ig, emSet);
-#endif
-
-// We know this never fails because the first mask spawn
-// uses 60 particles (3 per frame, lifespan=0x14, 3*20)
-// and particle pool hold 64, and vehicle is the one that
-// fails Particle_Init, see exhaust fade when mask spawns
-#if 0
-    if(particle == NULL) return;
-#endif
+		if (particle == NULL)
+			continue;
 
 		for (j = 0; j < 3; j++)
 			particle->axis[j].startVal += maskInst->matrix.t[j] * 0x100;
