@@ -1,12 +1,13 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800666e4-0x8006677c.
 void DECOMP_VehPickupItem_ShootOnCirclePress(struct Driver *d)
 {
 	u8 weapon;
 
 	if (d->ChangeState_param2 != 0)
 	{
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 		DECOMP_VehPickState_NewState(d, d->ChangeState_param2, (struct Driver *)d->ChangeState_param3, d->ChangeState_param4);
 #endif
 	}
