@@ -1094,8 +1094,8 @@ void VehStuckProc_Warp_Init(struct Thread *t, struct Driver *d);
 // More Turbo...
 
 void VehTurbo_ProcessBucket(struct Thread *turboThread);
-void VehTurbo_ThDestroy();
-void VehTurbo_ThTick(int param_1);
+void VehTurbo_ThDestroy(struct Thread *t);
+void VehTurbo_ThTick(struct Thread *t);
 
 // DrawSky (?)
 

@@ -753,6 +753,10 @@
 #include "game/Vehicle/VehStuckProc_18_Tumble_Animate.c"
 #include "game/Vehicle/VehStuckProc_19_Tumble_Init.c"
 
+#include "game/Vehicle/VehTurbo_0_ProcessBucket.c"
+#include "game/Vehicle/VehTurbo_1_ThDestroy.c"
+#include "game/Vehicle/VehTurbo_2_ThTick.c"
+
 #include "game/Vehicle/VehTalkMask_0_ThTick.c"
 #include "game/Vehicle/VehTalkMask_1_Init.c"
 #include "game/Vehicle/VehTalkMask_2_PlayXA.c"

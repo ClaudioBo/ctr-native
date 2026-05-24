@@ -1,6 +1,7 @@
 #include <common.h>
 
-void DECOMP_VehTurbo_ThDestroy(struct Thread *t)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80069370-0x800693c8.
+void VehTurbo_ThDestroy(struct Thread *t)
 {
 	struct Turbo *turboObj;
 	turboObj = t->object;
@@ -10,4 +11,9 @@ void DECOMP_VehTurbo_ThDestroy(struct Thread *t)
 
 	DECOMP_INSTANCE_Death(t->inst);
 	DECOMP_INSTANCE_Death(turboObj->inst);
+}
+
+void DECOMP_VehTurbo_ThDestroy(struct Thread *t)
+{
+	VehTurbo_ThDestroy(t);
 }

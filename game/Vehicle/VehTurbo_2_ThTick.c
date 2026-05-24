@@ -1,9 +1,19 @@
 #include <common.h>
 
-void ThTick_FastRET(struct Thread *);
+static void VehTurbo_TransformOffset(struct Instance *driverInst, s16 x, s16 y, s16 z, VECTOR *out)
+{
+	SVECTOR offset = {x, y, z, 0};
 
-// VehTurbo_ThTick
-void DECOMP_VehTurbo_ThTick(struct Thread *turboThread)
+	// NOTE(aalhendi): Native expression of retail VXY0/VZ0 loads before gte_rt.
+	gte_SetRotMatrix(&driverInst->matrix.m[0][0]);
+	gte_SetTransMatrix(&driverInst->matrix.m[0][0]);
+	gte_ldv0(&offset);
+	gte_rt();
+	gte_stlvl(out);
+}
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800693c8-0x80069bb0.
+void VehTurbo_ThTick(struct Thread *turboThread)
 {
 	char kartState;
 	u32 fireAudioDistort;
@@ -73,10 +83,6 @@ void DECOMP_VehTurbo_ThTick(struct Thread *turboThread)
 		turbo->inst->vertSplit = instanceDriver->vertSplit;
 	}
 
-	// matrix from instance
-	gte_SetRotMatrix(&instanceDriver->matrix.m[0][0]);
-	gte_SetTransMatrix(&instanceDriver->matrix.m[0][0]);
-
 	fireSize = (int)turbo->fireSize;
 	if (8 < (int)turbo->fireSize)
 	{
@@ -98,14 +104,8 @@ void DECOMP_VehTurbo_ThTick(struct Thread *turboThread)
 	instance->matrix.m[2][1] = (s16)(instanceDriver->matrix.m[2][1] * fireSize >> 3);
 	instance->matrix.m[2][2] = (s16)(instanceDriver->matrix.m[2][2] * fireSize >> 3);
 
-#define gte_ldVXY0(r0) __asm__ volatile("mtc2   %0, $0" : : "r"(r0))
-#define gte_ldVZ0(r0)  __asm__ volatile("mtc2   %0, $1" : : "r"(r0))
-	gte_ldVXY0(instanceDriver->scale[0] * 9 >> 0xb & 0xffffU | (instanceDriver->scale[1] * 3 >> 8) << 0x10);
-	gte_ldVZ0(instanceDriver->scale[2] * -0x34 >> 0xc);
-	gte_rt();
-
-	// set translation vector
-	gte_stlvl((VECTOR *)&instance->matrix.t[0]);
+	VehTurbo_TransformOffset(instanceDriver, instanceDriver->scale[0] * 9 >> 0xb, instanceDriver->scale[1] * 3 >> 8, instanceDriver->scale[2] * -0x34 >> 0xc,
+	                         (VECTOR *)&instance->matrix.t[0]);
 
 	// matrix of second turbo instance, negate X axis
 	turbo->inst->matrix.m[0][0] = (s16)(-(int)instanceDriver->matrix.m[0][0] * fireSize >> 3);
@@ -118,12 +118,8 @@ void DECOMP_VehTurbo_ThTick(struct Thread *turboThread)
 	turbo->inst->matrix.m[2][1] = (s16)(instanceDriver->matrix.m[2][1] * fireSize >> 3);
 	turbo->inst->matrix.m[2][2] = (s16)(instanceDriver->matrix.m[2][2] * fireSize >> 3);
 
-	gte_ldVXY0(instanceDriver->scale[0] * -0x12 >> 0xc & 0xffffU | (instanceDriver->scale[1] * 3 >> 8) << 0x10);
-	gte_ldVZ0(instanceDriver->scale[2] * -0x34 >> 0xc);
-	gte_rt();
-
-	// set translation vector
-	gte_stlvl((VECTOR *)&turbo->inst->matrix.t[0]);
+	VehTurbo_TransformOffset(instanceDriver, instanceDriver->scale[0] * -0x12 >> 0xc, instanceDriver->scale[1] * 3 >> 8,
+	                         instanceDriver->scale[2] * -0x34 >> 0xc, (VECTOR *)&turbo->inst->matrix.t[0]);
 
 	// decrease turbo visibility cooldown by elapsed milliseconds per frame, ~32
 	elapsedTime = turbo->fireVisibilityCooldown - gGT->elapsedTimeMS;
@@ -298,4 +294,9 @@ void DECOMP_VehTurbo_ThTick(struct Thread *turboThread)
 	// do not use infinite loop optimization,
 	// modern GCC "without" the $RA skip is more
 	// optimized than PSYQ "with" the $RA skip
+}
+
+void DECOMP_VehTurbo_ThTick(struct Thread *turboThread)
+{
+	VehTurbo_ThTick(turboThread);
 }

@@ -1,7 +1,7 @@
 #include <common.h>
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8005ab24-0x8005abfc.
-void DECOMP_VehFire_Audio(struct Driver *driver, int speed_cap)
+void VehFire_Audio(struct Driver *driver, int speed_cap)
 {
 	u32 distortion;
 	u32 volume;
@@ -61,4 +61,9 @@ Skip:
 
 	// turbo audio cooldown 0.24s
 	driver->VehFire_AudioCooldown = 0xf0;
+}
+
+void DECOMP_VehFire_Audio(struct Driver *driver, int speed_cap)
+{
+	VehFire_Audio(driver, speed_cap);
 }

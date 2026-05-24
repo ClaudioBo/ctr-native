@@ -631,9 +631,14 @@ void DECOMP_VehPhysForce_AccelTerrainSlope(struct Driver *driver);
 void DECOMP_VehPhysForce_OnApplyForces(struct Thread *t, struct Driver *d);
 void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver *driver);
 void DECOMP_VehPickupItem_ShootOnCirclePress(struct Driver *d);
+void VehFire_Audio(struct Driver *driver, int speed_cap);
 void DECOMP_VehFire_Audio(struct Driver *driver, int speed_cap);
 void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int fireLevel);
+void VehTurbo_ProcessBucket(struct Thread *turboThread);
+void DECOMP_VehTurbo_ProcessBucket(struct Thread *turboThread);
+void VehTurbo_ThTick(struct Thread *t);
 void DECOMP_VehTurbo_ThTick(struct Thread *t);
+void VehTurbo_ThDestroy(struct Thread *t);
 void DECOMP_VehTurbo_ThDestroy(struct Thread *t);
 
 void VehStuckProc_Tumble_Update(struct Thread *thread, struct Driver *driver);

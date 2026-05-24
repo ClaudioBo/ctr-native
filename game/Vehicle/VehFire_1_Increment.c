@@ -103,8 +103,8 @@ void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int
 
 #endif
 
-#ifndef REBUILD_PS1
-		turboInst1 = INSTANCE_BirthWithThread(0x2c, 0, SMALL, TURBO, DECOMP_VehTurbo_ThTick, sizeof(struct Turbo), 0);
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
+		turboInst1 = DECOMP_INSTANCE_BirthWithThread(0x2c, 0, SMALL, TURBO, VehTurbo_ThTick, sizeof(struct Turbo), 0);
 
 		turboObj = 0;
 
@@ -113,12 +113,12 @@ void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int
 			// get thread, ignore all collisions
 			turboThread = turboInst1->thread;
 			turboThread->flags |= 0x1000;
-			turboThread->funcThDestroy = DECOMP_VehTurbo_ThDestroy;
+			turboThread->funcThDestroy = VehTurbo_ThDestroy;
 
 			// turbo #2
-			turboInst2 = INSTANCE_Birth3D(gGT->modelPtr[STATIC_TURBO_EFFECT], // model
-			                              &sdata->s_turbo2[0],                // name
-			                              turboThread                         // parent thread
+			turboInst2 = DECOMP_INSTANCE_Birth3D(gGT->modelPtr[STATIC_TURBO_EFFECT], // model
+			                                     &sdata->s_turbo2[0],                // name
+			                                     turboThread                         // parent thread
 			);
 
 			// get object, set essentials
@@ -144,7 +144,7 @@ void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int
 
 				if (driver->kartState != KS_CRASHING)
 				{
-					DECOMP_VehFire_Audio(driver, fireLevel);
+					VehFire_Audio(driver, fireLevel);
 				}
 			}
 
@@ -228,7 +228,7 @@ void DECOMP_VehFire_Increment(struct Driver *driver, int reserves, u32 type, int
 
 			{
 				turboObj->fireAudioDistort = 0;
-				DECOMP_VehFire_Audio(driver, fireLevel);
+				VehFire_Audio(driver, fireLevel);
 			}
 		}
 	}
