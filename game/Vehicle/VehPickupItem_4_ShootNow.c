@@ -31,10 +31,12 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		gGT->numMissiles++;
 		d->numTimesMissileLaunched++;
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 		GAMEPAD_ShockFreq(d, 8, 0);
 		GAMEPAD_ShockForce1(d, 8, 0x7f);
+#endif
 
+#ifndef REBUILD_PS1
 		struct Driver *victim = VehPickupItem_MissileGetTargetDriver(d);
 #else
 		struct Driver *victim = 0;
@@ -122,7 +124,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		weaponInst->matrix.t[1] = dInst->matrix.t[1];
 		weaponInst->matrix.t[2] = dInst->matrix.t[2];
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 		VehPhysForce_RotAxisAngle(&weaponInst->matrix, (s16 *)&d->AxisAngle1_normalVec, d->rotCurr.y);
 #endif
 
@@ -179,7 +181,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 				if (victim->thTrackingMe == 0)
 					victim->thTrackingMe = DECOMP_RB_GetThread_ClosestTracker(victim);
 
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 			PlaySound3D(0x4a, weaponInst);
 #endif
 		}
@@ -187,7 +189,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		// if human and not AI
 		if ((d->actionsFlagSet & 0x100000) == 0)
 		{
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 			Voiceline_RequestPlay(talk, data.characterIDs[d->driverID], 0x10);
 #endif
 		}
