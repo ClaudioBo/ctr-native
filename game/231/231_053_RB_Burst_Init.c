@@ -4,6 +4,7 @@ void DECOMP_RB_Burst_ThTick();
 void DECOMP_RB_Burst_CollLevInst();
 void DECOMP_RB_Burst_CollThBucket();
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b2154-0x800b25b8.
 void DECOMP_RB_Burst_Init(struct Instance *weaponInst)
 {
 	struct GameTracker *gGT = sdata->gGT;
@@ -159,7 +160,7 @@ void DECOMP_RB_Burst_Init(struct Instance *weaponInst)
 	sps->Union.ThBuckColl.thread = weaponInst->thread;
 	sps->Union.ThBuckColl.funcCallback = DECOMP_RB_Burst_CollThBucket;
 
-	struct Thread *driverTh = tw->instParent->thread;
+	struct Thread *driverTh = tw->driverParent->instSelf->thread;
 
 	// check collision with all Player thread
 	DECOMP_PROC_CollideHitboxWithBucket(gGT->threadBuckets[PLAYER].thread, sps, driverTh);
