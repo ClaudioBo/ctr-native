@@ -307,12 +307,14 @@ void DECOMP_MM_Cheat_UnlockTracks(void)
 	DECOMP_OtherFX_Play(0x67, 1);
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800acc2c-0x800acc64.
 void DECOMP_MM_Cheat_InfiniteMasks(void)
 {
 	sdata->gGT->gameMode2 |= CHEAT_MASK;
 	DECOMP_OtherFX_Play(0x67, 1);
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800acc64-0x800acc9c.
 void DECOMP_MM_Cheat_MaxTurbos(void)
 {
 	sdata->gGT->gameMode2 |= CHEAT_TURBO;
@@ -325,6 +327,7 @@ void DECOMP_MM_Cheat_MaxInvisibility(void)
 	DECOMP_OtherFX_Play(0x67, 1);
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800accd4-0x800acd10.
 void DECOMP_MM_Cheat_MaxEngine(void)
 {
 	sdata->gGT->gameMode2 |= CHEAT_ENGINE;
@@ -355,6 +358,7 @@ void DECOMP_MM_Cheat_IcyTracks(void)
 	DECOMP_OtherFX_Play(0x67, 1);
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ace00-0x800ace3c.
 void DECOMP_MM_Cheat_SuperTurboPads(void)
 {
 	sdata->gGT->gameMode2 |= CHEAT_TURBOPAD;
@@ -367,6 +371,7 @@ void DECOMP_MM_Cheat_OneLap(void)
 	DECOMP_OtherFX_Play(0x67, 1);
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ace78-0x800aceb4.
 void DECOMP_MM_Cheat_TurboCounter(void)
 {
 	sdata->gGT->gameMode2 |= CHEAT_TURBOCOUNT;
