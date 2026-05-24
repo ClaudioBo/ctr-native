@@ -1,5 +1,7 @@
 #include <common.h>
 
+void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
+
 void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 {
 	struct Thread *t;
@@ -51,4 +53,9 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 	DECOMP_RB_MinePool_Add(mw);
 
 	DECOMP_RB_Default_LInB(inst);
+}
+
+void RB_GenericMine_LInB(struct Instance *inst)
+{
+	DECOMP_RB_GenericMine_LInB(inst);
 }

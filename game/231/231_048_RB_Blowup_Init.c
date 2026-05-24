@@ -4,6 +4,7 @@ void DECOMP_RB_Blowup_ThTick();
 void DECOMP_RB_Burst_CollLevInst();
 void DECOMP_RB_Burst_CollThBucket();
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b18f8-0x800b1bd8.
 void DECOMP_RB_Blowup_Init(struct Instance *weaponInst)
 {
 	struct Thread *explosionTh;
@@ -11,7 +12,7 @@ void DECOMP_RB_Blowup_Init(struct Instance *weaponInst)
 	struct Instance *shockwaveInst;
 	struct ModelHeader *headers;
 	struct GameTracker *gGT = sdata->gGT;
-	u16 color;
+	u32 color;
 	int *blowup;
 
 	// initialize thread for blowup

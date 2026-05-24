@@ -1,5 +1,8 @@
 #include <common.h>
 
+void DECOMP_RB_TNT_ThTick_ThrowOffHead(struct Thread *t);
+void DECOMP_RB_TNT_ThTick_ThrowOnHead(struct Thread *t);
+
 void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 {
 	struct GameTracker *gGT;
@@ -336,8 +339,8 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread *t)
 
 				// set scale (x, y, z) to zero
 				inst->scale[0] = 0;
-				inst->scale[0] = 0;
-				inst->scale[0] = 0;
+				inst->scale[1] = 0;
+				inst->scale[2] = 0;
 
 				// make invisible
 				inst->flags |= 0x80;

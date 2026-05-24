@@ -2,6 +2,8 @@
 
 void DECOMP_RB_TNT_ThTick_SitOnHead();
 
+static const s16 s_tntThrowHeadY[0x10] = {32, 32, 64, 32, 32, 48, 32, 32, 48, 64, 32, 48, 56, 24, 32, 56};
+
 void DECOMP_RB_TNT_ThTick_ThrowOnHead(struct Thread *t)
 {
 	struct MineWeapon *mw;
@@ -29,10 +31,7 @@ void DECOMP_RB_TNT_ThTick_ThrowOnHead(struct Thread *t)
 	// if TNT is moving downward
 	if (mw->velocity[1] < 0)
 	{
-		// 0x800b2ac4
-		// BSS before Baron_ThTick,
-		// determines height of TNT for each player
-		array = (s16 *)0x800b2ac4; // TODO: access named memory instead (D231?)
+		array = (s16 *)s_tntThrowHeadY;
 
 		distHead = array[data.characterIDs[mw->driverTarget->driverID]];
 

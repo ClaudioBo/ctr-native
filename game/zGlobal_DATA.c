@@ -9,7 +9,7 @@
 void DECOMP_RB_Default_LInB();
 void DECOMP_RB_Fruit_LInB();
 int DECOMP_RB_Fruit_LInC();
-void RB_GenericMine_LInB();
+void RB_GenericMine_LInB(struct Instance *inst);
 int DECOMP_RB_CrateFruit_LInC();
 int DECOMP_RB_CrateWeapon_LInC();
 int DECOMP_RB_CrateTime_LInC();
@@ -53,9 +53,7 @@ void DECOMP_RB_Fruit_LInB()
 int DECOMP_RB_Fruit_LInC()
 {
 }
-void RB_GenericMine_LInB()
-{
-}
+// void RB_GenericMine_LInB() {}		-- DONE
 int DECOMP_RB_CrateFruit_LInC()
 {
 }

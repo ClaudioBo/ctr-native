@@ -1,3 +1,4 @@
+#include "231_000_RB_MakeInstanceReflective.c"
 #include "231_001_RB_Player_KillPlayer.c"
 #include "231_002_RB_Player_ModifyWumpa.c"
 #include "231_003_RB_MinePool_Init.c"
@@ -10,8 +11,15 @@
 #include "231_010_RB_Hazard_ThCollide_Missile.c"
 #include "231_011_RB_Hazard_ThCollide_Generic.c"
 
-// TODO(aalhendi): BSP search, reflective placement, rot force helpers
-// TODO(aalhendi): 012-020 are the potion / mine / TNT cluster.
+#include "231_012_RB_Potion_OnShatter_TeethCallback.c"
+#include "231_013_RB_Potion_OnShatter_TeethSearch.c"
+#include "231_014_RB_Potion_ThTick_InAir.c"
+#include "231_015_RB_GenericMine_LInB.c"
+#include "231_016_RB_GenericMine_ThTick.c"
+#include "231_017_RB_GenericMine_ThDestroy.c"
+#include "231_018_RB_TNT_ThTick_ThrowOffHead.c"
+#include "231_019_RB_TNT_ThTick_SitOnHead.c"
+#include "231_020_RB_TNT_ThTick_ThrowOnHead.c"
 #include "231_021_RB_Explosion_ThTick.c"
 #include "231_022_RB_Hazard_CollLevInst.c"
 #include "231_023_RB_Hazard_InterpolateValue.c"
@@ -28,13 +36,12 @@
 #include "231_042_RB_RainCloud_ThTick.c"
 #include "231_043_RB_RainCloud_Init.c"
 
-// TODO(aalhendi): Particle_FuncPtr_PotionShatter.
-// TODO(aalhendi): 044
+#include "231_044_RB_Explosion_InitPotion.c"
 #include "231_045_RB_Explosion_InitGeneric.c"
 #include "231_046_RB_Blowup_ProcessBucket.c"
 #include "231_047_RB_Blowup_ThTick.c"
 
-// TODO(aalhendi): 048 RB_Blowup_Init still needs a retail pass before wiring.
+#include "231_048_RB_Blowup_Init.c"
 #include "231_049_RB_Burst_ProcessBucket.c"
 #include "231_050_RB_Burst_ThTick.c"
 #include "231_051_RB_Burst_CollThBucket.c"
@@ -47,10 +54,9 @@
 #include "231_059_RB_Blade_LInB.c"
 #include "231_060_RB_Bubbles_RoosTubes.c"
 
-// TODO(aalhendi): sound/voice paths and RB_MakeInstanceReflective.
+// TODO(aalhendi): sound/voice paths.
 // TODO(aalhendi): 061-077 (crate, crystal, default LevInst, and CTR letters).
 
-// TODO(aalhendi):  RB_MakeInstanceReflective. Keep the temporary zGlobal stub until ported
 // TODO(aalhendi): 231_073_RB_Default_LInB
 
 #include "231_082_085_RB_Armadillo.c"

@@ -2,6 +2,18 @@
 
 void DECOMP_RB_Explosion_ThTick();
 
+static const u32 s_potionShatterEmitter[] = {
+    0x000c0001, 0x00000000, 0x001400a1, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000001, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00020001, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00010017, 0x00000001, 0xfee80ed8, 0x00000000, 0x00000190, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00050001, 0x00001000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00070001, 0x00000001, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00080001, 0x0000c800, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00090001, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+};
+
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1458-0x800b1630.
+// NOTE(aalhendi): Native uses retail emitter bytes from 0x800b2d58.
 void DECOMP_RB_Explosion_InitPotion(struct Instance *inst)
 {
 	struct Instance *shatterInst;
@@ -40,7 +52,7 @@ void DECOMP_RB_Explosion_InitPotion(struct Instance *inst)
 	for (int i = 0; i < 5; i++)
 	{
 		// Create instance in particle pool
-		p = Particle_Init(0, sdata->gGT->iconGroup[1], (struct ParticleEmitter *)0x800b2d58);
+		p = Particle_Init(0, sdata->gGT->iconGroup[1], (struct ParticleEmitter *)s_potionShatterEmitter);
 
 		if (p == NULL)
 			continue;
