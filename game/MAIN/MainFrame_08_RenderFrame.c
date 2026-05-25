@@ -427,13 +427,7 @@ void RainLogic(struct GameTracker *gGT)
 
 	for (i = 0; i < numPlyrCurrGame; i++)
 	{
-#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
-		// NOTE(aalhendi): Native defines REBUILD_PS1 too, but 226 render lists need pb->bbox.
 		PushBuffer_UpdateFrustum(&gGT->pushBuffer[i]);
-#else
-		// temporary until PushBuffer_UpdateFrustum is done
-		DECOMP_PushBuffer_SetMatrixVP(&gGT->pushBuffer[i]);
-#endif
 
 		camQB = gGT->cameraDC[i].ptrQuadBlock;
 

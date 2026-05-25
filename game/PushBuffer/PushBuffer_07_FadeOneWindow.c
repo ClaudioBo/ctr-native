@@ -1,6 +1,7 @@
 #include <common.h>
 
-void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer *pb)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80043928-0x80043ab8.
+void PushBuffer_FadeOneWindow(struct PushBuffer *pb)
 {
 	typedef struct
 	{
@@ -46,6 +47,7 @@ void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer *pb)
 		}
 
 #ifdef REBUILD_PC
+		// NOTE(aalhendi): Native PsyCross needs dfe=1 for this full-window fade.
 		p->tpage |= 0x400; // set dfe=1
 #endif
 
@@ -94,4 +96,9 @@ void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer *pb)
 
 	// set new fade value
 	pb->fadeFromBlack_currentValue = currValue;
+}
+
+void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer *pb)
+{
+	PushBuffer_FadeOneWindow(pb);
 }

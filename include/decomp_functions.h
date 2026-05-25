@@ -463,6 +463,8 @@ void DECOMP_PushBuffer_Init(struct PushBuffer *pb, int id, int total);
 void DECOMP_PushBuffer_SetPsyqGeom(struct PushBuffer *pb);
 void DECOMP_PushBuffer_SetMatrixVP(struct PushBuffer *pb);
 
+void DECOMP_PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewport, s16 offsetX, s16 offsetY, u8 dtd, u8 dfe, u8 isbg, u8 tpageUpper,
+                                          u8 tpageLower);
 void DECOMP_PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *backBuffer, DRAWENV *copyDrawEnvNULL, int isbg);
 
 void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer *pb);

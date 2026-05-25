@@ -1,13 +1,19 @@
 #include <common.h>
 
-void DECOMP_PushBuffer_FadeAllWindows()
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80043ab8-0x80043b30.
+void PushBuffer_FadeAllWindows()
 {
 	struct GameTracker *gGT = sdata->gGT;
 
 	for (int i = 0; i < gGT->numPlyrCurrGame; i++)
 	{
-		DECOMP_PushBuffer_FadeOneWindow(&gGT->pushBuffer[i]);
+		PushBuffer_FadeOneWindow(&gGT->pushBuffer[i]);
 	}
 
-	DECOMP_PushBuffer_FadeOneWindow(&gGT->pushBuffer_UI);
+	PushBuffer_FadeOneWindow(&gGT->pushBuffer_UI);
+}
+
+void DECOMP_PushBuffer_FadeAllWindows()
+{
+	PushBuffer_FadeAllWindows();
 }

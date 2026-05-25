@@ -524,6 +524,7 @@
 
 #include "game/PushBuffer/PushBuffer_00_Init.c"
 #include "game/PushBuffer/PushBuffer_01_SetPsyqGeom.c"
+#include "game/PushBuffer/PushBuffer_02_SetDrawEnv_DecalMP.c"
 #include "game/PushBuffer/PushBuffer_03_SetDrawEnv_Normal.c"
 #include "game/PushBuffer/PushBuffer_04_SetMatrixVP.c"
 #include "game/PushBuffer/PushBuffer_05_SetFrustumPlane.c"

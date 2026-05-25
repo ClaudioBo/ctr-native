@@ -4,22 +4,20 @@
 static char buf[0x400];
 #endif
 
-// PushBuffer_SetMatrixVP -- CameraMatrix, and ViewProj
-void DECOMP_PushBuffer_SetMatrixVP(struct PushBuffer *pb)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80042c04-0x80042e50.
+void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 {
-#define uint u32
-
 	// CameraMatrix
-	uint uVar3;
-	uint uVar4;
-	uint uVar5;
-	uint uVar6;
+	u32 uVar3;
+	u32 uVar4;
+	u32 uVar5;
+	u32 uVar6;
 	s16 sVar7;
 
-	uint view0;
-	uint view4;
-	uint view8;
-	uint viewC;
+	u32 view0;
+	u32 view4;
+	u32 view8;
+	u32 viewC;
 
 #ifdef REBUILD_PC
 	char *scratchpad;
@@ -47,28 +45,24 @@ void DECOMP_PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	ConvertRotToMatrix(matrixDST, (s16 *)&scratchpad[0x3f4]);
 #endif
 
-	s16 t[3];
+	s16 negPos[3];
 
-	// bit-hack, store two u16s as one u32
-	*(int *)&t[0] = *(int *)&pb->pos[0];
-	t[2] = pb->pos[2];
+	pb->matrix_Camera.t[0] = pb->pos[0];
+	pb->matrix_Camera.t[1] = pb->pos[1];
+	pb->matrix_Camera.t[2] = pb->pos[2];
 
-	pb->matrix_Camera.t[0] = t[0];
-	pb->matrix_Camera.t[1] = t[1];
-	pb->matrix_Camera.t[2] = t[2];
-
-	// bit-hack, negate two u16s as one u32
-	*(int *)&t[0] = -*(int *)&t[0] + 0x10000;
-	t[2] = -t[2];
+	negPos[0] = -pb->pos[0];
+	negPos[1] = -pb->pos[1];
+	negPos[2] = -pb->pos[2];
 
 	// load inverted camera position
 #ifndef REBUILD_PC
 #define gte_ldVXY0(r0) __asm__ volatile("mtc2   %0, $0" : : "r"(r0))
 #define gte_ldVZ0(r0)  __asm__ volatile("mtc2   %0, $1" : : "r"(r0))
-	gte_ldVXY0(*(int *)&t[0]);
-	gte_ldVZ0(t[2]);
+	gte_ldVXY0(*(int *)&negPos[0]);
+	gte_ldVZ0(negPos[2]);
 #else
-	gte_ldv0(&t[0]);
+	gte_ldv0(&negPos[0]);
 #endif
 
 #ifndef REBUILD_PC
@@ -183,4 +177,9 @@ void DECOMP_PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 #endif
 
 	return;
+}
+
+void DECOMP_PushBuffer_SetMatrixVP(struct PushBuffer *pb)
+{
+	PushBuffer_SetMatrixVP(pb);
 }

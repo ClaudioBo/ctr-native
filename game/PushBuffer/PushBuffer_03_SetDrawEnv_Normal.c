@@ -1,6 +1,7 @@
 #include <common.h>
 
-void DECOMP_PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *backBuffer, DRAWENV *copyDrawEnvNULL, int isbg)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80042a8c-0x80042c04.
+void PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *backBuffer, s16 *copyDrawEnvNULL, int isbg)
 {
 	DRAWENV newDrawEnv;
 
@@ -21,13 +22,14 @@ void DECOMP_PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct
 		newDrawEnv.ofs[1] += pb->rect.y;
 	}
 
-	// never?
 	else
 	{
-		// OG game has stuff here
-		while (1)
-		{
-		}
+		newDrawEnv.clip.x = copyDrawEnvNULL[0];
+		newDrawEnv.clip.y = copyDrawEnvNULL[1];
+		newDrawEnv.clip.w = copyDrawEnvNULL[2];
+		newDrawEnv.clip.h = copyDrawEnvNULL[3];
+		newDrawEnv.ofs[0] = copyDrawEnvNULL[0];
+		newDrawEnv.ofs[1] = copyDrawEnvNULL[1];
 	}
 
 	newDrawEnv.isbg = isbg;
@@ -45,4 +47,9 @@ void DECOMP_PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct
 		// this camera's primitives to draw
 		AddPrim(ot, p);
 	}
+}
+
+void DECOMP_PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *backBuffer, DRAWENV *copyDrawEnvNULL, int isbg)
+{
+	PushBuffer_SetDrawEnv_Normal(ot, pb, backBuffer, (s16 *)copyDrawEnvNULL, isbg);
 }

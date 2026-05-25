@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): Ghidra-assisted native port of retail 0x800430f0; required for honest 1P render lists.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800430f0-0x80043928.
 
 static void PushBuffer_UpdateFrustum_LoadV0(int xy, int z)
 {
@@ -51,7 +51,7 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
   // assume no divide by zero
 #endif
 
-	DECOMP_PushBuffer_SetMatrixVP(pb);
+	PushBuffer_SetMatrixVP(pb);
 
 	cameraPosX = pb->pos[0];
 	cameraPosY = pb->pos[1];
@@ -98,15 +98,15 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 		PushBuffer_UpdateFrustum_ReadMAC(&tx, &ty, &tz);
 
 		// far clip: pos + dir*100
-		posX = (s16)tx * 0x100 + cameraPosX;
-		posY = (s16)ty * 0x100 + cameraPosY;
-		posZ = (s16)tz * 0x100 + cameraPosZ;
+		posX = tx * 0x100 + cameraPosX;
+		posY = ty * 0x100 + cameraPosY;
+		posZ = tz * 0x100 + cameraPosZ;
 
 		iVar19 = 0x1000;
 
-		fcOUT->pos[0] = (s16)tx + cameraPosX;
-		fcOUT->pos[1] = (s16)ty + cameraPosY;
-		fcOUT->pos[2] = (s16)tz + cameraPosZ;
+		fcOUT->pos[0] = tx + cameraPosX;
+		fcOUT->pos[1] = ty + cameraPosY;
+		fcOUT->pos[2] = tz + cameraPosZ;
 
 		// far clip: pos + dir*100
 		spf->pos[0] = posX;
@@ -262,9 +262,9 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 	int retZ;
 	PushBuffer_UpdateFrustum_ReadMAC(&retX, &retY, &retZ);
 
-	*(s16 *)&pb->frustumData[0x20] = -(s16)retX;
-	*(s16 *)&pb->frustumData[0x22] = -(s16)retY;
-	*(s16 *)&pb->frustumData[0x24] = -(s16)retZ;
+	*(s16 *)&pb->frustumData[0x20] = -retX;
+	*(s16 *)&pb->frustumData[0x22] = -retY;
+	*(s16 *)&pb->frustumData[0x24] = -retZ;
 
 
 	int distToScreen = pb->distanceToScreen_PREV;
@@ -275,7 +275,7 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 		iVar9 = distToScreen + 3;
 	}
 
-	*(s16 *)&pb->frustumData[0x26] = (s16)(-(cameraPosX * (s16)retX + cameraPosY * (s16)retY + cameraPosZ * (s16)retZ) >> 0xd) - (s16)(iVar9 >> 2);
+	*(s16 *)&pb->frustumData[0x26] = (s16)(-(cameraPosX * retX + cameraPosY * retY + cameraPosZ * retZ) >> 0xd) - (s16)(iVar9 >> 2);
 
 	// Negation Flags
 	int flags = (u32)retX >> 0x1f;
@@ -297,8 +297,8 @@ void PushBuffer_UpdateFrustum(struct PushBuffer *pb)
 
 	PushBuffer_UpdateFrustum_ReadMAC(&retX, &retY, &retZ);
 
-	*(s16 *)&pb->data6[0] = (s16)retX + cameraPosX;
-	*(s16 *)&pb->data6[2] = (s16)retY + cameraPosY;
-	*(s16 *)&pb->data6[4] = (s16)retZ + cameraPosZ;
+	*(s16 *)&pb->data6[0] = retX + cameraPosX;
+	*(s16 *)&pb->data6[2] = retY + cameraPosY;
+	*(s16 *)&pb->data6[4] = retZ + cameraPosZ;
 	return;
 }

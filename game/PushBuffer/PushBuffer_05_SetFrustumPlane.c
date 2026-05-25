@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): Ghidra-assisted native port of retail 0x80042e50; not ASM-stamped yet.
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80042e50-0x800430f0.
 
 static void PushBuffer_SetFrustumPlane_LoadAxisVector(int x, int y, int z)
 {

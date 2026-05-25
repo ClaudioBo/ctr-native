@@ -752,9 +752,10 @@ void PROC_CollideHitboxWithBucket(struct Thread *param_1, struct ScratchpadStruc
 // PushBuffer
 
 void PushBuffer_Init(struct PushBuffer *pb, int id, int total);
-// PushBuffer_SetPsyqGeom()
-void PushBuffer_SetDrawEnv_DecalMP(u_long *, struct DB *, s16, s16, s16, s16, s16, s16, s16, s16);
-void PushBuffer_SetDrawEnv_Normal(u_long *ot, struct PushBuffer *pb, struct DB *backBuffer, s16 *param_4, u8 param_5);
+void PushBuffer_SetPsyqGeom(struct PushBuffer *pb);
+void PushBuffer_SetDrawEnv_DecalMP(void *ot, struct DB *backBuffer, RECT *viewport, s16 offsetX, s16 offsetY, u8 dtd, u8 dfe, u8 isbg, u8 tpageUpper,
+                                   u8 tpageLower);
+void PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *backBuffer, s16 *param_4, int isbg);
 void PushBuffer_SetMatrixVP(struct PushBuffer *pb);
 int PushBuffer_SetFrustumPlane(s16 *frustumData, struct FrustumCornerOUT *fc1, s16 *camPos, struct FrustumCornerOUT *fc2);
 void PushBuffer_UpdateFrustum(struct PushBuffer *pb);
