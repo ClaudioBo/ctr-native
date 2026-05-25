@@ -1308,7 +1308,7 @@ void RenderVSYNC(struct GameTracker *gGT)
 	}
 }
 
-#ifndef REBUILD_PS1
+#ifndef CTR_NATIVE
 void RenderFMV()
 {
 	if (sdata->boolPlayVideoSTR == 1)

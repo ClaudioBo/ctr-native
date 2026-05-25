@@ -1,10 +1,15 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800afaf0-0x800aff58.
 void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, int trackIndex, int param_4, u16 param_5)
 {
+#ifndef CTR_NATIVE
 	u8 u0;
 	u8 v0;
 	u16 tpage;
+	int srcX;
+	int srcY;
+#endif
 	struct GameTracker *gGT = sdata->gGT;
 	struct BigHeader *bh = sdata->ptrBigfileCdPos_2;
 	struct BigEntry *entry = BIG_GETENTRY(bh);
@@ -21,13 +26,9 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 		// draw icon
 		D230.trackSel_videoStateCurr = 1;
 	}
-
-#ifndef REBUILD_PS1
+#ifndef CTR_NATIVE
 	else
 	{
-		// Lock D230.trackSel_videoStateCurr to zero to prevent allocation,
-		// which helps the Oxide efforts
-
 		if ((D230.trackSel_videoStateCurr == 2) && (D230.trackSel_videoStatePrev == 1))
 		{
 			// If you have not allocated memory for video yet
@@ -49,11 +50,11 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 			tpage = gGT->ptrIcons[0x3f]->texLayout.tpage;
 			u0 = gGT->ptrIcons[0x3f]->texLayout.u0;
 			v0 = gGT->ptrIcons[0x3f]->texLayout.v0;
+			srcX = (u16)u0 + (tpage & 0xf) * 0x40;
+			srcY = (u16)v0 + (tpage & 0x10) * 0x10 + (s16)(((u32)tpage & 0x800) >> 2);
 
-			// Decode off-screen
-			int ret = 0;
-
-			ret = MM_Video_DecodeFrame(512, 0);
+			// Decode into the icon's VRAM page; the copied rectangle starts inside it.
+			int ret = MM_Video_DecodeFrame(srcX, srcY);
 
 			if ((ret == 1) && (D230.trackSel_videoStateCurr == 2))
 			{
@@ -62,8 +63,8 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 			if (D230.trackSel_videoStatePrev == 3)
 			{
 				// RECT position (x,y)
-				sdata->videoSTR_src_vramRect.x = (u16)u0 + (tpage & 0xf) * 0x40 + 3;
-				sdata->videoSTR_src_vramRect.y = (u16)v0 + (tpage & 0x10) * 0x10 + (s16)(((u32)tpage & 0x800) >> 2) + 2;
+				sdata->videoSTR_src_vramRect.x = srcX + 3;
+				sdata->videoSTR_src_vramRect.y = srcY + 2;
 
 				// RECT size (w,h)
 				sdata->videoSTR_src_vramRect.w = 0xaa;
@@ -88,7 +89,7 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 		                     D230.videoCol, D230.videoCol, D230.videoCol, D230.videoCol, 0, FP(1.0));
 	}
 
-#ifndef REBUILD_PS1
+#ifndef CTR_NATIVE
 	if (D230.trackSel_videoStatePrev == 1)
 	{
 		// disable video copy

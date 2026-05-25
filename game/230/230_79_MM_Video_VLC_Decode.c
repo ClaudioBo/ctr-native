@@ -6,16 +6,16 @@ void MM_Video_VLC_Decode(void)
 	int iVar2;
 	int iVar3;
 	u_long size;
-	int WAIT_TIME;
 	s16 local_30;
 	s16 sStack_2e;
 	u_long *local_2c;
 	u_long *local_28[2];
+	int waitTime;
 
-	WAIT_TIME = 10; // frames
+	waitTime = 10; // frames
 
 	// free sectors and over sectors
-	StRingStatus(&local_30, sStack_2e);
+	StRingStatus(&local_30, &sStack_2e);
 
 	iVar2 = StGetBackloc(&V230.cdLocation2);
 
@@ -164,7 +164,7 @@ void MM_Video_VLC_Decode(void)
 						// sector->loc
 						iVar3 = CdPosToInt(local_28[0] + 0x1c);
 
-						WAIT_TIME = 10;
+						waitTime = 10;
 
 						if (V230.field0_0x0 <= iVar3)
 						{
@@ -204,8 +204,8 @@ void MM_Video_VLC_Decode(void)
 					StFreeRing(local_2c);
 					return;
 				}
-				WAIT_TIME--;
-			} while (WAIT_TIME != 0);
+				waitTime--;
+			} while (waitTime != 0);
 		}
 		V230.drawNextFrame = 0;
 	}

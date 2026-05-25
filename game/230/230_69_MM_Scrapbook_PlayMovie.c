@@ -1,6 +1,6 @@
 #include <common.h>
 
-#ifndef REBUILD_PS1
+#ifndef CTR_NATIVE
 __attribute__((optimize("O0"))) int ScrapBookPlayMovie_DecodeFrame()
 {
 	struct GameTracker *gGT = sdata->gGT;
@@ -57,7 +57,7 @@ void MM_Scrapbook_PlayMovie(struct RectMenu *menu)
 		// if file was found
 		if (CdSearchFile(&cdlFile, R230.s_teststr1) != 0)
 		{
-#ifndef REBUILD_PS1
+#ifndef CTR_NATIVE
 			SpuSetCommonCDVolume(sdata->vol_Music << 7, sdata->vol_Music << 7);
 
 			// Alloc memory to store Scrapbook
@@ -87,7 +87,7 @@ void MM_Scrapbook_PlayMovie(struct RectMenu *menu)
 	// Actually play the movie
 	case 2:
 
-#ifndef REBUILD_PS1
+#ifndef CTR_NATIVE
 		// infinite loop (cause this is scrapbook),
 		// keep doing DecodeFrame and VSync until done
 		while (ScrapBookPlayMovie_DecodeFrame())
@@ -119,7 +119,7 @@ void MM_Scrapbook_PlayMovie(struct RectMenu *menu)
 	// return disc to normal,
 	// return checkered flag to normal
 	case 3:
-#ifndef REBUILD_PS1
+#ifndef CTR_NATIVE
 		SpuSetCommonCDVolume(0, 0);
 
 		MM_Video_StopStream();

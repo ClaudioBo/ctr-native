@@ -888,6 +888,8 @@ struct OverlayDATA_230 D230 = {
     .s_RingBuf = "RingBuf",
 };
 
+struct OVR_230_VideoBSS V230;
+
 #undef CHEAT_N
 #undef CHEAT_U
 #undef CHEAT_S

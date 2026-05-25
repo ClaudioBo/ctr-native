@@ -3,6 +3,7 @@
 void MM_Video_DecDCToutCallbackFunc(void)
 {
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b5a64-0x800b5b7c.
+#ifndef CTR_NATIVE
 // part of PSYQ BSS
 #define StCdIntrFlag *(u32 *)0x8009ebf8
 
@@ -12,6 +13,9 @@ void MM_Video_DecDCToutCallbackFunc(void)
 
 		StCdIntrFlag = 0;
 	}
+#else
+	// NOTE(aalhendi): Native PsyCross does not map PSYQ BSS at 0x8009ebf8.
+#endif
 
 	u_long *ot = BreakDraw();
 
