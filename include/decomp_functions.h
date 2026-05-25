@@ -362,6 +362,13 @@ void DECOMP_MainRaceTrack_RequestLoad(s16 levelID);
 
 int DECOMP_MATH_Sin(u32 angle);
 int DECOMP_MATH_Cos(u32 angle);
+void ConvertRotToMatrix_InverseTranspose_NoRotY(MATRIX *m, s16 *rot);
+void ConvertRotToMatrix_InverseTranspose(MATRIX *m, s16 *rot);
+void ConvertRotToMatrix(MATRIX *m, s16 *rot);
+void ConvertRotToMatrix_Transpose(MATRIX *m, s16 *rot);
+void MatrixRotate(MATRIX *dst, MATRIX *src, MATRIX *rot);
+int SquareRoot0_stub(int param_1);
+VECTOR *ApplyMatrixLV_stub(VECTOR *input, VECTOR *output);
 void MATH_MatrixMul(MATRIX *output, MATRIX *input, VECTOR *rotate);
 void DECOMP_MATH_MatrixMul(MATRIX *output, MATRIX *input, VECTOR *rotate);
 

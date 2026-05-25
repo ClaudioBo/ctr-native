@@ -10,16 +10,12 @@
 #include "game/226/226_00_DrawLevelOvr1P.c"
 #include "game/TEST_DrawSkybox.c"
 #include "game/TEST_DrawInstances.c"
-#include "game/TEST_ConvertRotToMatrix.c"
 #include "game/TEST_ThTickRunBucket.c"
 #include "game/TEST_ThTickSetAndExec.c"
 #include "game/DrawConfetti/DrawConfetti.c"
 #include "game/DrawSky/DrawSky.c"
 
-#define ConvertRotToMatrix TEST_ConvertRotToMatrix
-#define ThTick_SetAndExec  TEST_ThTickSetAndExec
-
-#define SquareRoot0_stub   SquareRoot0
+#define ThTick_SetAndExec TEST_ThTickSetAndExec
 
 #include "game/RenderBucket/RenderBucket_08_InitDepthGTE.c"
 #include "game/RenderBucket/RenderBucket_QueueExecute.c"
@@ -458,6 +454,7 @@
 #include "game/MATH/MATH_1_Cos.c"
 #include "game/MATH/MATH_2_FastSqrt.c"
 #include "game/MATH/MATH_3_HitboxMatrix.c"
+#include "game/MATH/MATH_7_MatrixStubs.c"
 #include "game/MATH/MATH_MatrixRotate.c"
 #include "game/MATH/MATH_6_MatrixMul.c"
 

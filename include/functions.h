@@ -1125,15 +1125,15 @@ void RenderBucket_Execute(void *param_1, struct PrimMem *param_2);
 // Draw_Uncompress2()
 // Draw_KartFlames()
 // Draw_KartInWaterMud()
-// ConvertRotToMatrix_InverseTranspose_NoRotY()
-// ConvertRotToMatrix_InverseTranspose()
+void ConvertRotToMatrix_InverseTranspose_NoRotY(MATRIX *m, s16 *rot);
+void ConvertRotToMatrix_InverseTranspose(MATRIX *m, s16 *rot);
 void ConvertRotToMatrix(MATRIX *m, s16 *rot);
-// ConvertRotToMatrix_Transpose()
-// MatrixRotate()
+void ConvertRotToMatrix_Transpose(MATRIX *m, s16 *rot);
+void MatrixRotate(MATRIX *dst, MATRIX *src, MATRIX *rot);
 // TRIG_AngleSinCos_r16r17r18_duplicate()
 int SquareRoot0_stub(int param_1);
 // RngDeadCoed()
-// ApplyMatrixLV_stub()
+VECTOR *ApplyMatrixLV_stub(VECTOR *input, VECTOR *output);
 // Draw_KartGhost()
 // Draw_KartBodyReflection()
 // RenderBucket_DrawInstPrim_Ghost()

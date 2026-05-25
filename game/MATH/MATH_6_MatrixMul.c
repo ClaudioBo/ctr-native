@@ -6,7 +6,7 @@ void MATH_MatrixMul(MATRIX *output, MATRIX *input, VECTOR *rotate)
 	MATRIX *rotateMatrix = (MATRIX *)rotate;
 
 	MatrixRotate(output, input, rotateMatrix);
-	ApplyMatrixLV(input, (VECTOR *)rotateMatrix->t, (VECTOR *)output->t);
+	ApplyMatrixLV_stub((VECTOR *)rotateMatrix->t, (VECTOR *)output->t);
 
 	output->t[0] += input->t[0];
 	output->t[1] += input->t[1];
