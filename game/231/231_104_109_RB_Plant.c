@@ -1,8 +1,6 @@
 #include <common.h>
 
 // budget: 2584
-// NOTE(aalhendi): Retail-backed audio/control corrections for NTSC-U 926 0x800b81e8-0x800b89a4.
-// TODO(aalhendi): Complete exact ASM pass for the full Plant state machine.
 
 enum PlantAnim
 {
@@ -26,7 +24,9 @@ struct HitboxDesc plantBoxDesc = {.inst = (struct Instance *)0,
 extern struct ParticleEmitter emSet_PlantTires[8];
 
 void DECOMP_RB_Plant_ThTick_Rest(struct Thread *t);
+void DECOMP_RB_Hazard_ThCollide_Generic_Alt(struct Thread **param_1);
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b81e8-0x800b84f0.
 void DECOMP_RB_Plant_ThTick_Eat(struct Thread *t)
 {
 	int i;
@@ -117,7 +117,7 @@ void DECOMP_RB_Plant_ThTick_Eat(struct Thread *t)
 					particle = Particle_Init(0, sdata->gGT->iconGroup[0], &emSet_PlantTires[0]);
 
 					if (particle == 0)
-						break;
+						continue;
 
 					particle->funcPtr = Particle_FuncPtr_SpitTire;
 					particle->plantInst = plantInst;
@@ -130,14 +130,14 @@ void DECOMP_RB_Plant_ThTick_Eat(struct Thread *t)
 
 					particle->axis[0].velocity += (
 					                                  // 6 - 26
-					                                  ((DECOMP_MixRNG_Scramble() % 10) + 0x10) * (plantInst->matrix.m[0][2] >> 0xC)) *
+					                                  (((DECOMP_MixRNG_Scramble() % 10) + 0x10) * plantInst->matrix.m[0][2]) >> 0xC) *
 					                              0x100;
 
 					// axis[1].velocity is untouched
 
 					particle->axis[2].velocity += (
 					                                  // 6 - 26
-					                                  ((DECOMP_MixRNG_Scramble() % 10) + 0x10) * (plantInst->matrix.m[2][2] >> 0xC)) *
+					                                  (((DECOMP_MixRNG_Scramble() % 10) + 0x10) * plantInst->matrix.m[2][2]) >> 0xC) *
 					                              0x100;
 				}
 			}
@@ -155,16 +155,21 @@ void DECOMP_RB_Plant_ThTick_Eat(struct Thread *t)
 	}
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b84f0-0x800b8650.
 void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
 {
 	struct Instance *plantInst;
-	struct Plant *plantObj;
+	struct HitboxDesc plantBoxDescLocal;
 
 	struct Instance *hitInst;
+	struct Thread *threadHit;
 	struct GameTracker *gGT = sdata->gGT;
 
 	plantInst = t->inst;
-	plantObj = (struct Plant *)t->object;
+
+	plantBoxDescLocal = plantBoxDesc;
+	plantBoxDescLocal.inst = plantInst;
+	plantBoxDescLocal.thread = t;
 
 	if (plantInst->animIndex == PlantAnim_GrabDriver)
 	{
@@ -174,18 +179,17 @@ void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
 			// increment frame
 			plantInst->animFrame = plantInst->animFrame + 1;
 
-			plantBoxDesc.bucket = gGT->threadBuckets[MINE].thread;
-			hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDesc);
+			plantBoxDescLocal.bucket = gGT->threadBuckets[MINE].thread;
+			hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDescLocal);
 
 			if (hitInst != 0)
 			{
-				struct Thread *threadHit = hitInst->thread;
+				threadHit = hitInst->thread;
 
-				plantBoxDesc.threadHit = threadHit;
-				plantBoxDesc.funcThCollide = threadHit->funcThCollide;
+				plantBoxDescLocal.threadHit = threadHit;
+				plantBoxDescLocal.funcThCollide = threadHit->funcThCollide;
 
-				// optimization
-				DECOMP_RB_Hazard_ThCollide_Generic(threadHit);
+				DECOMP_RB_Hazard_ThCollide_Generic_Alt(&threadHit);
 			}
 		}
 
@@ -197,16 +201,22 @@ void DECOMP_RB_Plant_ThTick_Grab(struct Thread *t)
 		}
 	}
 
-#if 0
-	// UNUSED!
-	else if(plantInst->animIndex == PlantAnim_GrabMine)
+	else if (plantInst->animIndex == PlantAnim_GrabMine)
 	{
-		// play animation, make mine explode,
-		// then return to PlantAnim_Rest
+		if ((plantInst->animFrame + 1) < DECOMP_INSTANCE_GetNumAnimFrames(plantInst, PlantAnim_GrabMine))
+		{
+			plantInst->animFrame = plantInst->animFrame + 1;
+		}
+		else
+		{
+			plantInst->animFrame = 0;
+			plantInst->animIndex = PlantAnim_Rest;
+			ThTick_SetAndExec(t, DECOMP_RB_Plant_ThTick_Rest);
+		}
 	}
-#endif
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b8650-0x800b86b4.
 void DECOMP_RB_Plant_ThTick_Transition_HungryToRest(struct Thread *t)
 {
 	struct Instance *plantInst = t->inst;
@@ -229,10 +239,12 @@ void DECOMP_RB_Plant_ThTick_Transition_HungryToRest(struct Thread *t)
 	}
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b86b4-0x800b88a8.
 void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 {
 	struct Instance *plantInst;
 	struct Plant *plantObj;
+	struct HitboxDesc plantBoxDescLocal;
 
 	struct Instance *hitInst;
 	struct Driver *hitDriver;
@@ -241,6 +253,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 
 	plantInst = t->inst;
 	plantObj = (struct Plant *)t->object;
+	plantBoxDescLocal = plantBoxDesc;
 
 	// if animIndex == PlantAnim_Hungry
 
@@ -274,11 +287,11 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 
 	// === collision ===
 
-	plantBoxDesc.inst = plantInst;
-	plantBoxDesc.thread = t;
+	plantBoxDescLocal.inst = plantInst;
+	plantBoxDescLocal.thread = t;
 
-	plantBoxDesc.bucket = gGT->threadBuckets[PLAYER].thread;
-	hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDesc);
+	plantBoxDescLocal.bucket = gGT->threadBuckets[PLAYER].thread;
+	hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDescLocal);
 
 	if (hitInst != 0)
 	{
@@ -314,8 +327,8 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 	if ((gGT->gameMode1 & ADVENTURE_BOSS) != 0)
 		return;
 
-	plantBoxDesc.bucket = gGT->threadBuckets[ROBOT].thread;
-	hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDesc);
+	plantBoxDescLocal.bucket = gGT->threadBuckets[ROBOT].thread;
+	hitInst = DECOMP_LinkedCollide_Hitbox(&plantBoxDescLocal);
 
 	if (hitInst != 0)
 	{
@@ -330,6 +343,7 @@ void DECOMP_RB_Plant_ThTick_Hungry(struct Thread *t)
 	}
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b88a8-0x800b89a4.
 void DECOMP_RB_Plant_ThTick_Rest(struct Thread *t)
 {
 	struct Instance *plantInst;
@@ -388,6 +402,7 @@ void DECOMP_RB_Plant_ThTick_Rest(struct Thread *t)
 	}
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b89a4-0x800b8c00.
 void DECOMP_RB_Plant_LInB(struct Instance *inst)
 {
 	struct Plant *plantObj;
