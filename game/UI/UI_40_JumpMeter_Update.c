@@ -1,5 +1,7 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80051c64-0x80051e24.
+
 void DECOMP_UI_JumpMeter_Update(struct Driver *d)
 {
 	// if player is not in the air
@@ -61,7 +63,7 @@ void DECOMP_UI_JumpMeter_Update(struct Driver *d)
 	// if player is in the air
 	else
 	{
-#ifndef REBUILD_PS1
+#if !defined(REBUILD_PS1) || defined(CTR_NATIVE)
 		if ((0x480 < d->jump_LandingBoost) && (d->jumpMeter < 0x481))
 		{
 			// Make driver talk
