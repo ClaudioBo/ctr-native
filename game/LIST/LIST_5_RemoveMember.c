@@ -1,49 +1,34 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800317e4-0x8003186c.
 struct Item *LIST_RemoveMember(struct LinkedList *L, struct Item *I)
 {
-#ifdef CTR_INTERNAL
-	if (I != 0 && I->next == 0 && I->prev == 0 && L->count > 1)
-	{
-		fprintf(stderr, "LIST_RemoveMember: item %p has next=0 prev=0 but list count=%d (corrupt?)\n", (void *)I, L->count);
-	}
-#endif
-	// probably waste of time, but leave it for now
-	// TheUbMunster: looking at the ghidra decomp, it seems like this line is necessary bc L->count should not be decrimented if L->first == NULL
-	if (L->first == 0)
-		return 0;
-
-	// can't remove this check, or it'll crash
-	// in 232, bottom of Door_ThTick, erasing keys
 	if (I == 0)
 		return 0;
 
-	// if this is not the first item
-	if (I->prev != 0)
+	if (L->first != 0)
 	{
-		I->prev->next = I->next;
+		if (I->prev != 0)
+		{
+			I->prev->next = I->next;
+		}
+		else
+		{
+			L->first = I->next;
+		}
+
+		if (I->next != 0)
+		{
+			I->next->prev = I->prev;
+		}
+		else
+		{
+			L->last = I->prev;
+		}
+
+		L->count = L->count - 1;
 	}
 
-	else
-	{
-		L->first = I->next;
-	}
-
-	// if this is not the last item
-	if (I->next != 0)
-	{
-		I->next->prev = I->prev;
-	}
-
-	else
-	{
-		L->last = I->prev;
-	}
-
-	// decrease item count
-	L->count = L->count - 1;
-
-	// erase links
 	I->next = 0;
 	I->prev = 0;
 
