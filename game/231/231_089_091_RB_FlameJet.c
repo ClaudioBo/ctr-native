@@ -389,6 +389,7 @@ EndFjThTick:
 	Vector_SpecLightNoSpin3D(fjInst, &fjInst->instDef->rot[0], &fjLightDir[0]);
 }
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b6938-0x800b6d58.
 void DECOMP_RB_FlameJet_LInB(struct Instance *inst)
 {
 	int fjID;
