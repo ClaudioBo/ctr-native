@@ -2,6 +2,7 @@
 
 void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac6b4-0x800aca50.
 void DECOMP_RB_Potion_ThTick_InAir(struct Thread *t)
 {
 	struct GameTracker *gGT;

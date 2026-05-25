@@ -2,6 +2,7 @@
 
 void DECOMP_RB_GenericMine_ThTick(struct Thread *t);
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800aca50-0x800acb60.
 void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 {
 	struct Thread *t;
@@ -10,6 +11,11 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 	struct Instance *parentInst;
 
 	gGT = sdata->gGT;
+
+	DECOMP_RB_Default_LInB(inst);
+
+	if (inst->thread != NULL)
+		return;
 
 	// if loaded Rocky Road or Nitro Court
 	// from outside crystal challenge, skip boxes
@@ -21,7 +27,7 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 	    SIZE_RELATIVE_POOL_BUCKET(sizeof(struct MineWeapon), NONE, SMALL, MINE),
 
 	    DECOMP_RB_GenericMine_ThTick, // behavior
-	    0,                            // debug name
+	    "nitro",                      // debug name
 	    0                             // thread relative
 	);
 
@@ -51,8 +57,6 @@ void DECOMP_RB_GenericMine_LInB(struct Instance *inst)
 	mw->stopFallAtY = inst->matrix.t[1];
 
 	DECOMP_RB_MinePool_Add(mw);
-
-	DECOMP_RB_Default_LInB(inst);
 }
 
 void RB_GenericMine_LInB(struct Instance *inst)
