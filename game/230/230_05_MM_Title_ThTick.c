@@ -37,6 +37,7 @@ void DECOMP_MM_Title_ThTick(struct Thread *title)
 	{
 		if (D230.titleSounds[i].frameToPlay == timer)
 		{
+			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac3e8-0x800ac400 for title queued SFX.
 			DECOMP_OtherFX_Play(D230.titleSounds[i].soundID, 1);
 		}
 	}

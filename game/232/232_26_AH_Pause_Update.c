@@ -75,6 +75,7 @@ void DECOMP_AH_Pause_Update()
 				gGT->advPausePage = 6;
 		}
 
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b3340-0x800b3350 for adventure pause page-turn SFX.
 		DECOMP_OtherFX_Play(0, 1);
 	}
 

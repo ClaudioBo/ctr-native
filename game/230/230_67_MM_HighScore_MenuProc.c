@@ -113,6 +113,7 @@ void DECOMP_MM_HighScore_MenuProc(struct RectMenu *menu_unused)
 	else
 	{
 		bVar1 = true;
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b3ad8-0x800b3ae4 for high-score back SFX.
 		DECOMP_OtherFX_Play(2, 1);
 		D230.highScore_transitionState = EXITING_MENU;
 	}

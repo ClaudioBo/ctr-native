@@ -58,6 +58,7 @@ void DECOMP_AH_MaskHint_Start(s16 hintId, u16 bool_interruptWarppad)
 	for (int i = 0; i < 3; i++)
 	{
 		// 4 bytes for 4 volumes
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b3f3c-0x800b3f54 for mask-hint volume backup.
 		D232.audioBackup[i] = DECOMP_howl_VolumeGet(i);
 	}
 
