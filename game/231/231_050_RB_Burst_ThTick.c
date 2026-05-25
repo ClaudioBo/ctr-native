@@ -20,7 +20,7 @@ static void RB_Burst_UpdateSlot(int *slot)
 	*slot = 0;
 }
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1d2c-0x800b1e90.
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 231 0x800b1d2c-0x800b1e90.
 void RB_Burst_ThTick(struct Thread *t)
 {
 	int *burst;

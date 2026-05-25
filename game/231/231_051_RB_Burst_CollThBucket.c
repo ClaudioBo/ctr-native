@@ -1,6 +1,8 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1e90-0x800b20a4.
+typedef int (*BurstThreadCollideFunc)(struct Thread *, struct Thread *, void *, int);
+
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 231 0x800b1e90-0x800b20a4.
 void RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t)
 {
 	struct GameTracker *gGT;
@@ -92,8 +94,7 @@ void RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t)
 	// if function pointer is valid
 	if (t->funcThCollide != NULL)
 	{
-		// execute funcThCollide
-		t->funcThCollide(t);
+		((BurstThreadCollideFunc)t->funcThCollide)(t, weaponTh, t->funcThCollide, 3);
 	}
 	return;
 }

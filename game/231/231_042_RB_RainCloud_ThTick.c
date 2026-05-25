@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1000-0x800b1220.
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 231 0x800b1000-0x800b1220.
 void RB_RainCloud_ThTick(struct Thread *t)
 {
 	s16 animFrame;

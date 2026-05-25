@@ -1,17 +1,18 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1220-0x800b1458.
+static char s_cloud1[] = "cloud1";
+
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 231 0x800b1220-0x800b1458.
 void RB_RainCloud_Init(struct Driver *d)
 {
 	struct Instance *cloudInst;
 	struct RainCloud *rcloud;
 	struct RainLocal *rlocal;
-	u16 uVar3;
 
 	// if driver -> cloudTh is invalid
 	if (d->thCloud == NULL)
 	{
-		cloudInst = INSTANCE_BirthWithThread(0x42, 0, SMALL, OTHER, RB_RainCloud_ThTick, sizeof(struct RainCloud), d->instSelf->thread);
+		cloudInst = INSTANCE_BirthWithThread(0x42, s_cloud1, SMALL, OTHER, RB_RainCloud_ThTick, sizeof(struct RainCloud), d->instSelf->thread);
 
 		cloudInst->thread->funcThDestroy = PROC_DestroyInstance;
 
@@ -34,7 +35,6 @@ void RB_RainCloud_Init(struct Driver *d)
 		// add rain to pool
 		rlocal = (struct RainLocal *)JitPool_Add(&sdata->gGT->JitPools.rain);
 
-		// no idea what struct is this yet
 		if (rlocal != NULL)
 		{
 			rlocal->frameCount = 0x1e;

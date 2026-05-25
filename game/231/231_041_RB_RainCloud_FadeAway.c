@@ -1,8 +1,6 @@
 #include <common.h>
 
-// budget 216/224
-
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0f1c-0x800b1000.
+// NOTE(aalhendi): ASM-verified against NTSC-U 926 overlay 231 0x800b0f1c-0x800b1000.
 void RB_RainCloud_FadeAway(struct Thread *t)
 {
 	struct Instance *inst;
@@ -27,9 +25,6 @@ void RB_RainCloud_FadeAway(struct Thread *t)
 	struct RainLocal *rainLocal = rcloud->rainLocal;
 	rainLocal->frameCount -= 2;
 
-	// shrink scale (x, y, z)
-	// use this order, for better register
-	// allocation, and less cpu instructions
 	inst->scale[2] += -0x100;
 	inst->scale[1] += -0x100;
 	inst->scale[0] += -0x100;
