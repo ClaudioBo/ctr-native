@@ -176,6 +176,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 				D230.trackSel_changeTrack_frameCount = 3;
 				D230.trackSel_direction = 1;
 
+				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b034c-0x800b035c for track-select previous SFX.
 				DECOMP_OtherFX_Play(0, 1);
 				break;
 
@@ -197,6 +198,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 				D230.trackSel_changeTrack_frameCount = 3;
 				D230.trackSel_direction = -1;
 
+				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b03bc-0x800b03cc for track-select next SFX.
 				DECOMP_OtherFX_Play(0, 1);
 				break;
 
@@ -204,6 +206,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 			case BTN_CIRCLE:
 
 				// "enter/confirm" sound
+				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0434-0x800b0444 for track-select confirm SFX.
 				DECOMP_OtherFX_Play(1, 1);
 
 				// if not Battle or Time Trial, open LapSelectMenu
@@ -223,6 +226,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu *menu)
 			case BTN_SQUARE_one:
 
 				// "go back" sound
+				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0490-0x800b04a4 for track-select back SFX.
 				DECOMP_OtherFX_Play(2, 1);
 
 				D230.trackSel_StartRaceAfterFadeOut = 0;

@@ -339,6 +339,7 @@ dontDrawSelectCharacter:
 						if (globalIconPerPlayerCopy3 << 0x10 != globalIconPerPlayerCopy2 << 0x10)
 						{
 							// Play sound
+							// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800aeeb8-0x800aeecc for character cursor-change SFX.
 							DECOMP_OtherFX_Play(0, 1);
 						}
 						if (local_50 != 0)
@@ -372,6 +373,7 @@ dontDrawSelectCharacter:
 					numPlyrNextGame = gGT->numPlyrNextGame;
 
 					// Play sound
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800aefa4-0x800aefe4 for character confirm SFX.
 					DECOMP_OtherFX_Play(1, 1);
 
 					// if all players have selected their characters
@@ -395,6 +397,7 @@ dontDrawSelectCharacter:
 					D230.isMenuTransitioning = 2;
 
 					// Play sound
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800af01c-0x800af054 for character-select back SFX.
 					DECOMP_OtherFX_Play(2, 1);
 				}
 			}
@@ -404,6 +407,7 @@ dontDrawSelectCharacter:
 				if ((button & (BTN_TRIANGLE | BTN_SQUARE_one)) != 0)
 				{
 					// Play sound
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800af060-0x800af074 for character deselect SFX.
 					DECOMP_OtherFX_Play(2, 1);
 
 					// this player has de-selected their character

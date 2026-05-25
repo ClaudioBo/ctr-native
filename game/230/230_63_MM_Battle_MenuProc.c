@@ -163,6 +163,7 @@ void DECOMP_MM_Battle_MenuProc(struct RectMenu *unused)
 				if (0 < gGT->battleSetup.teamOfEachPlayer[i])
 				{
 					// play sound
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1b54-0x800b1b6c for battle team-left SFX.
 					DECOMP_OtherFX_Play(0, 1);
 
 					// Move your icon to the left
@@ -182,6 +183,7 @@ void DECOMP_MM_Battle_MenuProc(struct RectMenu *unused)
 				if (gGT->battleSetup.teamOfEachPlayer[i] < 3)
 				{
 					// play sound
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1bc0-0x800b1bd8 for battle team-right SFX.
 					DECOMP_OtherFX_Play(0, 1);
 
 					// Move your icon to the right
@@ -227,6 +229,7 @@ void DECOMP_MM_Battle_MenuProc(struct RectMenu *unused)
 								if ((buttonTapP1 & 0x40020) != 0)
 								{
 									// Play "Go Back" sound
+									// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b20f8-0x800b2110 for battle setup back SFX.
 									DECOMP_OtherFX_Play(2, 1);
 
 									// go back when transition is done, dont start race
@@ -241,6 +244,7 @@ void DECOMP_MM_Battle_MenuProc(struct RectMenu *unused)
 							else
 							{
 								// Play sound
+								// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b1de4-0x800b1df4 for battle setup confirm SFX.
 								DECOMP_OtherFX_Play(1, 1);
 
 								switch (sdata->battleSetupRowHighlighted)
@@ -456,6 +460,7 @@ void DECOMP_MM_Battle_MenuProc(struct RectMenu *unused)
 			if (sdata->battleSetupRowHighlighted != uVar4)
 			{
 				// Play sound
+				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b2178-0x800b2194 for battle row-change SFX.
 				DECOMP_OtherFX_Play(0, 1);
 			}
 		}
