@@ -113,6 +113,11 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		modelID = DYNAMIC_ROCKET;
 		int bucket = TRACKING;
 		struct Thread *parentTh = 0;
+#ifdef REBUILD_PC
+		char *weaponName = "bombtracker1";
+#else
+		char *weaponName = rdata.s_bombtracker1;
+#endif
 
 		// bomb
 		if ((d->heldItemID == 1) || (d->heldItemID == 10))
@@ -120,10 +125,12 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 			modelID = DYNAMIC_BOMB;
 			bucket = OTHER;
 			parentTh = dInst->thread;
+			weaponName = sdata->s_bomb1;
 		}
 
 		// medium stack pool
-		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, 0, MEDIUM, bucket, DECOMP_RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), parentTh);
+		weaponInst =
+		    DECOMP_INSTANCE_BirthWithThread(modelID, weaponName, MEDIUM, bucket, DECOMP_RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), parentTh);
 
 		// copy matrix
 		*(int *)&weaponInst->matrix.m[0][0] = *(int *)&dInst->matrix.m[0][0];
@@ -259,10 +266,14 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 
 		// tnt or nitro
 		modelID = STATIC_CRATE_TNT;
+		char *mineName = sdata->s_tnt1;
 		if (d->numWumpas >= 10)
+		{
 			modelID = PU_EXPLOSIVE_CRATE;
+			mineName = sdata->s_nitro1;
+		}
 
-		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, 0, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, mineName, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 
 		dInst = d->instSelf;
 		d->instTntSend = weaponInst;
@@ -395,7 +406,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		if (d->numWumpas >= 10)
 			modelID = STATIC_BEAKER_RED;
 
-		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, 0, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
+		weaponInst = DECOMP_INSTANCE_BirthWithThread(modelID, sdata->s_beaker1, SMALL, MINE, DECOMP_RB_GenericMine_ThTick, sizeof(struct MineWeapon), 0);
 
 		dInst = d->instSelf;
 
@@ -462,7 +473,16 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 	// Shield Bubble
 	case 6:
 
-		weaponInst = DECOMP_INSTANCE_BirthWithThread(0x5a, 0, MEDIUM, OTHER, RB_ShieldDark_ThTick_Grow, sizeof(struct Shield), d->instSelf->thread);
+#ifdef REBUILD_PC
+		char *shieldDarkName = "shielddark";
+		char *highlightName = "highlight";
+#else
+		char *shieldDarkName = rdata.s_shielddark;
+		char *highlightName = rdata.s_highlight;
+#endif
+
+		weaponInst =
+		    DECOMP_INSTANCE_BirthWithThread(0x5a, shieldDarkName, MEDIUM, OTHER, RB_ShieldDark_ThTick_Grow, sizeof(struct Shield), d->instSelf->thread);
 
 		d->instBubbleHold = weaponInst;
 
@@ -473,9 +493,9 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		if (d->numWumpas >= 10)
 			modelID = DYNAMIC_SHIELD;
 
-		struct Instance *instColor = DECOMP_INSTANCE_Birth3D(gGT->modelPtr[modelID], 0, 0);
+		struct Instance *instColor = DECOMP_INSTANCE_Birth3D(gGT->modelPtr[modelID], sdata->s_shield, 0);
 
-		struct Instance *instHighlight = DECOMP_INSTANCE_Birth3D(gGT->modelPtr[DYNAMIC_HIGHLIGHT], 0, weaponTh);
+		struct Instance *instHighlight = DECOMP_INSTANCE_Birth3D(gGT->modelPtr[DYNAMIC_HIGHLIGHT], highlightName, weaponTh);
 
 		weaponInst->alphaScale = 0x400;
 
@@ -494,7 +514,6 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		struct Shield *shieldObj = weaponTh->object;
 		shieldObj->animFrame = 0;
 		shieldObj->flags = 0;
-		shieldObj->duration = 0x2d00;
 		shieldObj->instColor = instColor;
 		shieldObj->instHighlight = instHighlight;
 		shieldObj->highlightRot[0] = 0;
@@ -502,8 +521,14 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		shieldObj->highlightRot[2] = 0;
 		shieldObj->highlightTimer = 0;
 
-		if (d->numWumpas >= 10)
+		if (d->numWumpas < 10)
+		{
+			shieldObj->duration = 0x2d00;
+		}
+		else
+		{
 			shieldObj->flags = 4;
+		}
 
 		OtherFX_Play(0x57, 1);
 		break;
@@ -563,7 +588,13 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		GAMEPAD_ShockForce1(d, 8, 0x7f);
 
 		// MEDIUM
-		weaponInst = DECOMP_INSTANCE_BirthWithThread(0x36, 0, MEDIUM, TRACKING, RB_Warpball_ThTick, sizeof(struct TrackerWeapon), 0);
+#ifdef REBUILD_PC
+		char *warpballName = "warpball";
+#else
+		char *warpballName = rdata.s_warpball;
+#endif
+
+		weaponInst = DECOMP_INSTANCE_BirthWithThread(0x36, warpballName, MEDIUM, TRACKING, RB_Warpball_ThTick, sizeof(struct TrackerWeapon), 0);
 
 		*(int *)&weaponInst->matrix.m[0][0] = 0x1000;
 		*(int *)&weaponInst->matrix.m[0][2] = 0;
@@ -571,9 +602,9 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver *d, int weaponID, int flags)
 		*(int *)&weaponInst->matrix.m[2][0] = 0;
 		weaponInst->matrix.m[2][2] = 0x1000;
 
-		weaponInst->matrix.t[0] = dInst->matrix.t[0];
-		weaponInst->matrix.t[1] = dInst->matrix.t[1];
-		weaponInst->matrix.t[2] = dInst->matrix.t[2];
+		weaponInst->matrix.t[0] = d->posCurr.x >> 8;
+		weaponInst->matrix.t[1] = d->posCurr.y >> 8;
+		weaponInst->matrix.t[2] = d->posCurr.z >> 8;
 
 		weaponTh = weaponInst->thread;
 		weaponTh->funcThDestroy = DECOMP_PROC_DestroyInstance;
