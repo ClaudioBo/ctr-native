@@ -1,12 +1,12 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80031b14-0x80031b50.
 void LOAD_HubCallback(struct LoadQueueSlot *lqs)
 {
+	(void)lqs;
+	sdata->load_inProgress = 0;
 	LOAD_Callback_PatchMem();
 
-	struct GameTracker *gGT = sdata->gGT;
-	struct Level *lev = sdata->ptrLevelFile;
-
-	gGT->level2 = lev;
-	gGT->visMem2 = lev->visMem;
+	sdata->gGT->level2 = sdata->ptrLevelFile;
+	MEMPACK_SwapPacks(sdata->gGT->activeMempackIndex);
 }
