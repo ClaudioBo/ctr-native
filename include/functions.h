@@ -544,7 +544,7 @@ void LOAD_Robots2P(struct BigHeader *bigfile, int p1, int p2, void (*callback)(s
 void LOAD_Robots1P(int characterID);
 int LOAD_DriverMPK(struct BigHeader *bigfile, int levelLOD, void (*callback)(struct LoadQueueSlot *));
 void LOAD_LangFile(int bigfilePtr, int lang);
-int LOAD_GetBigfileIndex(u32 levelID, int lod);
+int LOAD_GetBigfileIndex(u32 levelID, int lod, int fileIndexInGroup);
 void LOAD_AppendQueue(struct BigHeader *bigfile, int type, int fileIndex, void *destinationPtr, void (*callback)(struct LoadQueueSlot *));
 void LOAD_CDRequestCallback(struct LoadQueueSlot *lqs);
 void LOAD_NextQueuedFile(void);

@@ -445,22 +445,20 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 			MEMPACK_SwapPacks(gGT->activeMempackIndex);
 		}
 
-		// base index of the group
 		// NOTE(aalhendi): Retail sets the load gate before queueing level files.
 		sdata->load_inProgress = 1;
-		uVar16 = LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD);
 
 		// add VRAM to loading queue
-		LOAD_AppendQueue(0, LT_SETVRAM, uVar16 + LVI_VRAM, NULL, LOAD_VramFileCallback);
+		LOAD_AppendQueue(0, LT_SETVRAM, LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD, LVI_VRAM), NULL, LOAD_VramFileCallback);
 
 		// add LEV to loading queue
-		LOAD_AppendQueue(0, LT_GETADDR, uVar16 + LVI_LEV, &sdata->ptrLevelFile, LOAD_DramFileCallback);
+		LOAD_AppendQueue(0, LT_GETADDR, LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD, LVI_LEV), &sdata->ptrLevelFile, LOAD_DramFileCallback);
 
 		// if world is made of multiple LEVs
 		if ((gGT->gameMode2 & LEV_SWAP) != 0)
 		{
 			// add PTR file to loading queue
-			LOAD_AppendQueue(0, LT_SETADDR, uVar16 + LVI_PTR, (void *)sdata->PatchMem_Ptr, LOAD_Callback_PatchMem);
+			LOAD_AppendQueue(0, LT_SETADDR, LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD, LVI_PTR), (void *)sdata->PatchMem_Ptr, LOAD_Callback_PatchMem);
 		}
 		break;
 	}

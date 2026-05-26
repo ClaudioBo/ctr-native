@@ -967,7 +967,7 @@ int LOAD_HowlHeaderSectors(CdlFILE *cdlFileHWL, void *ptrDestination, int firstS
 int CDSYS_XASeek(int boolCdControl, int categoryID, int xaID);
 void LibraryOfModels_Store(struct GameTracker *gGT, u32 numModels, struct Model **ptrModelArray);
 void LOAD_DramFileCallback(struct LoadQueueSlot *lqs);
-int LOAD_GetBigfileIndex(u32 levelID, int lod);
+int LOAD_GetBigfileIndex(u32 levelID, int lod, int fileIndexInGroup);
 void LOAD_HubSwapPtrs(struct GameTracker *gGT);
 void LOAD_GlobalModelPtrs_MPK(void);
 void LOAD_OvrEndRace(u32 param_1);
