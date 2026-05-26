@@ -1,6 +1,8 @@
 #include <common.h>
 
-#ifdef REBUILD_PC
+// NOTE(aalhendi): Native keeps these commands static because PsyCross consumes the
+// DrawOTag packet after this function returns; retail uses the stack-local path.
+#ifdef CTR_NATIVE
 struct
 {
 	int a;
@@ -8,11 +10,12 @@ struct
 } commands;
 #endif
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c248-0x8003c310 for the retail path.
 void MainInit_VRAMClear()
 {
 	DRAWENV drawEnv;
 
-#ifndef REBUILD_PC
+#ifndef CTR_NATIVE
 	struct
 	{
 		int a;
