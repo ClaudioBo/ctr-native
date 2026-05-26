@@ -862,7 +862,7 @@ void TakeCupProgress_MenuProc(struct RectMenu *menu);
 void Timer_Init();
 // Timer_Destroy()
 int Timer_GetTime_Total();
-int Timer_GetTime_Elapsed(int time, void *param_2);
+int Timer_GetTime_Elapsed(int time, int *param_2);
 
 // Torch
 
