@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002689c-0x80026ae4.
 void GAMEPROG_ResetHighScores(struct GameProgress *gameProg)
 {
 	int i;
