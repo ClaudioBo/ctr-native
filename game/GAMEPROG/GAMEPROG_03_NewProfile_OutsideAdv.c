@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80026bf0-0x80026c24.
 void GAMEPROG_NewProfile_OutsideAdv(struct GameProgress *gameProg)
 {
 	// GameOptions is probably a struct "inside"

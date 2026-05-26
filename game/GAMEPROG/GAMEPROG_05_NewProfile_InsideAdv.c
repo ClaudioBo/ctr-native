@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80026cb8-0x80026cf4.
 void GAMEPROG_NewProfile_InsideAdv(struct AdvProgress *adv)
 {
 	// clear
