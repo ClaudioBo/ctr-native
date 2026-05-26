@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80022930-0x80022b34.
 int DecalFont_DrawMultiLineStrlen(char *str, s16 len, s16 posX, s16 posY, s16 maxPixLen, s16 fontType, s16 flags)
 {
 	char strCharacter;

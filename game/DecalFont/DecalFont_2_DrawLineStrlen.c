@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800224fc-0x80022878 for the retail path.
 void DecalFont_DrawLineStrlen(u8 *str, s16 len, int posX, s16 posY, s16 fontType, int flags)
 {
 	struct GameTracker *gGT = sdata->gGT;
@@ -344,7 +345,8 @@ void DecalFont_DrawLineStrlen(u8 *str, s16 len, int posX, s16 posY, s16 fontType
 
 #if BUILD <= UsaRetail
 
-#ifdef REBUILD_PC
+// NOTE(aalhendi): Native can boot before every retail icon group is loaded.
+#ifdef CTR_NATIVE
 			if (gGT->iconGroup[iconGroupID] != 0)
 #endif
 
