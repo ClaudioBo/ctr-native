@@ -641,6 +641,9 @@
 #include "game/UI/UI_50_VsQuipAssignAll.c"
 #include "game/UI/UI_53_RaceEnd_GetDriverClock.c"
 #include "game/UI/UI_55_RaceEnd_MenuProc.c"
+#include "game/UI/UI_56_CupStandings_FinalizeCupRanks.c"
+#include "game/UI/UI_57_CupStandings_UpdateCupRanks.c"
+#include "game/UI/UI_58_CupStandings_InputAndDraw.c"
 
 #include "game/Vehicle/VehBirth_0_TeleportSelf.c"
 #include "game/Vehicle/VehBirth_1_TeleportAll.c"

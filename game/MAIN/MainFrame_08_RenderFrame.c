@@ -531,13 +531,11 @@ void RenderAllHUD(struct GameTracker *gGT)
 		// if no hud
 		if ((hudFlags & 1) == 0)
 		{
-#ifndef REBUILD_PS1
 			// if standings
 			if ((hudFlags & 4) != 0)
 			{
 				UI_CupStandings_InputAndDraw();
 			}
-#endif
 		}
 
 		// if hud

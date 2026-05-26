@@ -931,9 +931,9 @@ void UI_VsWaitForPressX();
 void UI_RaceEnd_GetDriverClock(struct Driver *driver);
 void UI_RaceStart_IntroText1P();
 void UI_RaceEnd_MenuProc();
-// UI_CupStandings_FinalizeCupRanks()
-// UI_CupStandings_UpdateCupRanks()
-// UI_CupStandings_InputAndDraw()
+void UI_CupStandings_FinalizeCupRanks();
+void UI_CupStandings_UpdateCupRanks();
+void UI_CupStandings_InputAndDraw();
 
 // Vector
 
@@ -1172,7 +1172,6 @@ void *BreakDraw();
 
 void RB_Bubbles_RoosTubes();
 void RB_Burst_DrawAll(struct GameTracker *gGT);
-void UI_CupStandings_InputAndDraw();
 void VB_EndEvent_DrawMenu();
 void RR_EndEvent_DrawMenu();
 void AA_EndEvent_DrawMenu();
@@ -1268,8 +1267,6 @@ void RB_Fruit_GetScreenCoords(struct PushBuffer *pb, struct Instance *inst, s16 
 void VehPhysForce_OnGravity(struct Driver *driver, Vec3 *velocity);
 int RngDeadCoed(u32 *);
 struct Terrain *VehAfterColl_GetTerrain(u8 terrainType);
-void UI_CupStandings_UpdateCupRanks();
-void UI_CupStandings_FinalizeCupRanks();
 void ThTick_SetAndExec(struct Thread *, void (*callbackMaybe)(struct Thread *)); // guessed about the signature
 void RB_Default_LInB(struct Instance *);
 u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex);

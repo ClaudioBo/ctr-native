@@ -531,6 +531,9 @@ void UI_DrawRankedDrivers(void);
 void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale, u32 color);
 void UI_RenderFrame_AdvHub(void);
 void UI_RenderFrame_Racing(void);
+void UI_CupStandings_FinalizeCupRanks(void);
+void UI_CupStandings_UpdateCupRanks(void);
+void UI_CupStandings_InputAndDraw(void);
 
 void UI_SaveLapTime(int numLaps, int lapTime, s16 driverID);
 
