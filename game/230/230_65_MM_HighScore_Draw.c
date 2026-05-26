@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 overlay 230 0x800b2fbc-0x800b3914.
 void MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 {
 	char i;
@@ -9,8 +10,6 @@ void MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 	int *colorPtr;
 	s16 levelID;
 	struct HighScoreEntry *entry;
-	u32 uVar9;
-	u32 uVar10;
 	RECT videoBox;
 	s16 offsetX;
 	s16 offsetY;
@@ -18,9 +17,7 @@ void MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 	struct GameTracker *gGT = sdata->gGT;
 
 	offsetX = (s16)posX;
-	uVar10 = posX & 0xffff;
 	offsetY = (s16)posY;
-	uVar9 = posY & 0xffff;
 
 	levelID = D230.arcadeTracks[trackIndex].levID;
 
@@ -50,8 +47,8 @@ void MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 	u32 iconColor = D230.highscore_iconColor;
 
 	// "BEST TRACK TIMES"
-	MM_HighScore_Text3D(sdata->lngStrings[0xb3], D230.transitionMeta_HighScores[1].currX + (uVar10 + 0x20),
-	                    D230.transitionMeta_HighScores[1].currY + (uVar9 + 0x2b), FONT_SMALL, 0);
+	MM_HighScore_Text3D(sdata->lngStrings[0xb3], D230.transitionMeta_HighScores[1].currX + offsetX + 0x20,
+	                    D230.transitionMeta_HighScores[1].currY + offsetY + 0x2b, FONT_SMALL, 0);
 
 	// first entry: Time Trial or Relic
 	entry = &sdata->gameProgress.highScoreTracks[levelID].scoreEntry[rowIndex * 6];
@@ -60,10 +57,15 @@ void MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 	// with ghost stars, and Best Lap
 	if ((rowIndex & 0xffff) == 0)
 	{
+		int prevLevelID = gGT->levelID;
+
+		gGT->levelID = levelID;
+		GAMEPROG_GetPtrHighScoreTrack();
+
 		// draw ghost stars
 		for (i = 0; i < 2; i++)
 		{
-			if (((sdata->gameProgress.highScoreTracks[levelID].timeTrialFlags >> D230.highscore_ghostBeatFlags[i]) & 1) != 0)
+			if (((sdata->gameProgress.highScoreTracks[gGT->levelID].timeTrialFlags >> D230.highscore_ghostBeatFlags[i]) & 1) != 0)
 			{
 				colorPtr = data.ptrColor[D230.colorIndexArray[i]];
 
@@ -79,17 +81,20 @@ void MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 			}
 		}
 
+		gGT->levelID = prevLevelID;
+		GAMEPROG_GetPtrHighScoreTrack();
+
 		// "BEST LAP TIME:"
-		MM_HighScore_Text3D(sdata->lngStrings[0xb4], D230.transitionMeta_HighScores[7].currX + (uVar10 + 0x124),
-		                    D230.transitionMeta_HighScores[7].currY + (uVar9 + 0x2b), FONT_SMALL, 0);
+		MM_HighScore_Text3D(sdata->lngStrings[0xb4], D230.transitionMeta_HighScores[7].currX + offsetX + 0x124,
+		                    D230.transitionMeta_HighScores[7].currY + offsetY + 0x2b, FONT_SMALL, 0);
 
 		// Character Name
-		MM_HighScore_Text3D(entry[0].name, D230.transitionMeta_HighScores[7].currX + (uVar10 + 0x160), D230.transitionMeta_HighScores[7].currY + (uVar9 + 0x39),
+		MM_HighScore_Text3D(entry[0].name, D230.transitionMeta_HighScores[7].currX + offsetX + 0x160, D230.transitionMeta_HighScores[7].currY + offsetY + 0x39,
 		                    FONT_BIG, entry[0].characterID + 5);
 
 		// Draw time string
-		MM_HighScore_Text3D(RECTMENU_DrawTime(entry[0].time), D230.transitionMeta_HighScores[7].currX + (uVar10 + 0x160),
-		                    D230.transitionMeta_HighScores[7].currY + (uVar9 + 0x4a), FONT_SMALL, 0);
+		MM_HighScore_Text3D(RECTMENU_DrawTime(entry[0].time), D230.transitionMeta_HighScores[7].currX + offsetX + 0x160,
+		                    D230.transitionMeta_HighScores[7].currY + offsetY + 0x4a, FONT_SMALL, 0);
 
 		// Character Icon
 		RECTMENU_DrawPolyGT4(gGT->ptrIcons[data.MetaDataCharacters[entry[0].characterID].iconID], D230.transitionMeta_HighScores[7].currX + (offsetX + 0x124),
@@ -109,12 +114,12 @@ void MM_HighScore_Draw(u16 trackIndex, u32 rowIndex, u32 posX, u32 posY)
 		                     iconColor, iconColor, iconColor, iconColor, 1, 0x1000);
 
 		// draw the name string
-		MM_HighScore_Text3D(entry[i + 1].name, D230.transitionMeta_HighScores[j].currX + uVar10 + 0x5c,
-		                    D230.transitionMeta_HighScores[j].currY + uVar9 + (i * 0x1f) + 0x39, FONT_BIG, entry[i + 1].characterID + 5);
+		MM_HighScore_Text3D(entry[i + 1].name, D230.transitionMeta_HighScores[j].currX + offsetX + 0x5c,
+		                    D230.transitionMeta_HighScores[j].currY + offsetY + (i * 0x1f) + 0x39, FONT_BIG, entry[i + 1].characterID + 5);
 
 		// draw the Time string
-		MM_HighScore_Text3D(RECTMENU_DrawTime(entry[i + 1].time), D230.transitionMeta_HighScores[j].currX + uVar10 + 0x5c,
-		                    D230.transitionMeta_HighScores[j].currY + uVar9 + (i * 0x1f) + 0x4a, FONT_SMALL, 0);
+		MM_HighScore_Text3D(RECTMENU_DrawTime(entry[i + 1].time), D230.transitionMeta_HighScores[j].currX + offsetX + 0x5c,
+		                    D230.transitionMeta_HighScores[j].currY + offsetY + (i * 0x1f) + 0x4a, FONT_SMALL, 0);
 	}
 
 	videoBox.w = 0xb0;
