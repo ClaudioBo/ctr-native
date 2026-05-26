@@ -1,6 +1,6 @@
 #include <common.h>
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 #include <PsyX/PsyX_render.h>
 #endif
 
@@ -38,7 +38,7 @@ void MainInit_VRAMDisplay()
 		}
 	}
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
 	Platform_BeginFrame();
 	GR_PresentVRAMDisplay();
 	Platform_EndFrame();

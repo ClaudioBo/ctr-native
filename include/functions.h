@@ -610,7 +610,7 @@ void MainGameEnd_SoloRaceSaveHighScore(void);
 // MainInit
 
 void MainInit_VisMem(struct GameTracker *gGT);
-// MainInit_RainBuffer()
+void MainInit_RainBuffer(struct GameTracker *gGT);
 void MainInit_PrimMem(struct GameTracker *gGT);
 void MainInit_JitPoolsReset(struct GameTracker *gGT);
 void MainInit_OTMem(struct GameTracker *gGT);
@@ -1292,7 +1292,6 @@ void SpuSetIRQ(int);
 void SpuReadDecodedData(s16 *, int);
 void SpuSetIRQCallback(void (*)(void));
 void SpuSetTransferCallback(void (*)(void));
-void MainInit_RainBuffer(struct GameTracker *);
 void CS_Podium_FullScene_Init(void);
 void CS_Cutscene_Start(void);
 void howl_StopAudio(int boolErasePauseBackup, int boolEraseMusic, int boolDestroyAllFX);

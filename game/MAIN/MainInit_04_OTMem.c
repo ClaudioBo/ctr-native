@@ -1,27 +1,24 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003b334-0x8003b43c.
 void MainInit_OTMem(struct GameTracker *gGT)
 {
 	int size;
-	int levelID = gGT->levelID;
+	u32 gameMode = gGT->gameMode1;
 
-	// cutscenes, main menu, garage, ND Box,
-	// any% end, 101% end, credits
-	if (levelID >= INTRO_RACE_TODAY)
+	if ((gameMode & MAIN_MENU) != 0)
 	{
-		size = 0x2000;
+		size = 0x1800;
 		goto EndFunc;
 	}
 
-	// Adv Hub
-	if (levelID >= GEM_STONE_VALLEY)
+	if ((gameMode & ADVENTURE_ARENA) != 0)
 	{
 		size = 0x2c00;
 		goto EndFunc;
 	}
 
-	// battle maps
-	if (levelID >= NITRO_COURT)
+	if ((gameMode & BATTLE_MODE) != 0)
 	{
 		size = 0x8000;
 		goto EndFunc;
