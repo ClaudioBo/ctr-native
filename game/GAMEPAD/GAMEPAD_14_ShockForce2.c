@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80026540-0x800265c0.
 void GAMEPAD_ShockForce2(struct Driver *d, int frame, int val)
 {
 	// if AI

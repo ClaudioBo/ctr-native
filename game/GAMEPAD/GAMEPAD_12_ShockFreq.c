@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80026440-0x800264c0.
 void GAMEPAD_ShockFreq(struct Driver *d, int frame, int val)
 {
 	// if AI
