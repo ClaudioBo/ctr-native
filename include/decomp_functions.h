@@ -78,11 +78,11 @@ void ElimBG_SaveScreenshot_Full(struct GameTracker *gGT);
 void GAMEPAD_Init(struct GamepadSystem *gGamepads);
 void GAMEPAD_PollVsync(struct GamepadSystem *gGamepads);
 int GAMEPAD_GetNumConnected(struct GamepadSystem *gGamepads);
-void GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads);
+int GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads);
 void GAMEPAD_ProcessSticks(struct GamepadSystem *gGamepads);
-void GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads);
+int GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads);
 void GAMEPAD_ProcessMotors(struct GamepadSystem *gGamepads);
-void GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads);
+int GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads);
 void GAMEPAD_ProcessState(struct GamepadBuffer *pad, int padState, s16 id);
 
 int GAMEPROG_CheckGhostsBeaten(int ghostID);

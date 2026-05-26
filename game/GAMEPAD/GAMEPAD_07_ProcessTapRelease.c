@@ -4,11 +4,14 @@
 // for Tap and Release, based on Hold,
 // also maps joysticks onto buttons
 
-void GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80025d10-0x80025e18.
+int GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads)
 {
+	u32 heldAny = 0;
 	int numConnected = gGamepads->numGamepadsConnected;
-	if (numConnected == 0)
-		return;
+
+	if (numConnected <= 0)
+		return 0;
 
 	char cVar1;
 	cVar1 = sdata->unkPadSetActAlign[6];
@@ -47,11 +50,13 @@ void GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads)
 					pad->buttonsHeldCurrFrame |= BTN_UP;
 				}
 
-				else if (pad->stickLY > 0xe1)
+				else if (0xe0 < pad->stickLY)
 				{
 					pad->buttonsHeldCurrFrame |= BTN_DOWN;
 				}
 			}
+
+			heldAny |= pad->buttonsHeldCurrFrame;
 
 			// tapped
 			pad->buttonsTapped = ~pad->buttonsHeldPrevFrame & pad->buttonsHeldCurrFrame;
@@ -60,4 +65,6 @@ void GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads)
 			pad->buttonsReleased = pad->buttonsHeldPrevFrame & ~pad->buttonsHeldCurrFrame;
 		}
 	}
+
+	return heldAny;
 }

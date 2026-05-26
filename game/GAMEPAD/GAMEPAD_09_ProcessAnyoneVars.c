@@ -18,14 +18,16 @@ volatile int gCtrDebugPadTap = 0;
 
 /// @brief Main gamepad processing function. Polls every connected gamepad and generates global state flags.
 /// @param gGamepads - gamepad input system
-void GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads)
+// NOTE(aalhendi): PSX path ASM-verified NTSC-U 926 0x800262d0-0x800263a0.
+int GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads)
 {
+	int heldAny;
 	struct GamepadBuffer *pad;
 
 	// process gamepads
-	GAMEPAD_ProcessHold(gGamepads);
+	heldAny = GAMEPAD_ProcessHold(gGamepads);
 	GAMEPAD_ProcessSticks(gGamepads);
-	GAMEPAD_ProcessTapRelease(gGamepads);
+	heldAny |= GAMEPAD_ProcessTapRelease(gGamepads);
 	GAMEPAD_ProcessMotors(gGamepads);
 
 	// These are used to see if any button is pressed by anyone
@@ -68,4 +70,6 @@ void GAMEPAD_ProcessAnyoneVars(struct GamepadSystem *gGamepads)
 		}
 	}
 #endif
+
+	return heldAny;
 }

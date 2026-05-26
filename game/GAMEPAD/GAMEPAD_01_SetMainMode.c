@@ -1,6 +1,7 @@
 #include <common.h>
 
-void GAMEPAD_SetMainMode()
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80025208-0x800252a0.
+void GAMEPAD_SetMainMode(void)
 {
 	PadSetMainMode(0, 0, 0);
 	PadSetMainMode(1, 0, 0);

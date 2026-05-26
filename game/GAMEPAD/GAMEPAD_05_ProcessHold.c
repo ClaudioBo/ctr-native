@@ -3,13 +3,15 @@
 // store a backup of "currFrame" into "lastFrame"
 // param1 is pointer to gamepadSystem
 
-void GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80025718-0x80025854.
+int GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads)
 {
 	char j;
 	char *btnMapPtr;
 	u32 *puVar2;
 	u16 uVar4;
 	u32 uVar5;
+	u32 heldAny = 0;
 
 	struct GamepadBuffer *pad;
 	struct ControllerPacket *ptrControllerPacket;
@@ -80,6 +82,7 @@ void GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads)
 
 			// record buttons held this frame
 			pad->buttonsHeldCurrFrame = uVar5;
+			heldAny |= uVar5;
 
 			// if nothing was held
 			if (uVar5 == 0)
@@ -96,4 +99,6 @@ void GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads)
 			}
 		}
 	}
+
+	return heldAny;
 }
