@@ -90,7 +90,7 @@ void SelectProfile_Init(u16 flags)
 					}
 
 					idpp = INST_GETIDPP(inst);
-					idpp[0].pushBuffer = &gGT->pushBuffer[0];
+					idpp[0].pushBuffer = &gGT->pushBuffer_UI;
 					for (player = 1; player < gGT->numPlyrCurrGame; player++)
 					{
 						idpp[player].pushBuffer = NULL;
