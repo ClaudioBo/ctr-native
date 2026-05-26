@@ -11,11 +11,11 @@ u8 MEMCARD_GetInfo(int slotIdx)
 	// check the result of a GET INFO
 	// 8 tries to see if it worked
 	MEMCARD_SkipEvents();
+	sdata->memcard_stage = MC_STAGE_GETINFO;
+	sdata->memcardSlot = slotIdx;
 	while (!_card_info(slotIdx))
 		;
-	sdata->memcard_stage = MC_STAGE_GETINFO;
 	sdata->memcard_remainingAttempts = 8;
-	sdata->memcardSlot = slotIdx;
 
 	// The "info" has started, the result will be found
 	// the next time we wait for an event result
