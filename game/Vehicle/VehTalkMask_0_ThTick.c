@@ -1,6 +1,6 @@
 #include <common.h>
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068f90-0x80069178
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80068f90-0x80069178.
 void VehTalkMask_ThTick(struct Thread *t)
 {
 	struct GameTracker *gGT = sdata->gGT;
@@ -32,6 +32,8 @@ void VehTalkMask_ThTick(struct Thread *t)
 	mhInst->scale[0] = scale;
 	mhInst->scale[1] = scale;
 	mhInst->scale[2] = scale;
+
+	u32 lastFrame = VehFrameInst_GetNumAnimFrames(mhInst, 0) - 1;
 
 	sdata->unk_8008d9f4[1] = sdata->XA_MaxSampleValInArr;
 
@@ -98,8 +100,6 @@ SkipLerp:
 	// animation frame goes back and forth
 	// 0x00: mouth close
 	// 0x0C: mouth open
-
-	u32 lastFrame = VehFrameInst_GetNumAnimFrames(mhInst, 0) - 1;
 
 	if (mhInst->animFrame < 0)
 		mhInst->animFrame = 0;
