@@ -4352,6 +4352,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0x88A3,
                     .rows = 0,
+                    // TODO(aalhendi): Include MainFreeze_MenuPtrOptions and replace this raw retail callback address.
                     .funcPtr = (void (*)(struct RectMenu *))0x80038b5c,
                     .drawStyle = 4,
 
@@ -4982,25 +4983,21 @@ struct Data
                 {
                     .stringIndexTitle = -1,
                     .state = 0x2820,
-                    .funcPtr = (void (*)(struct RectMenu *))0x800490c4,
+                    .funcPtr = SelectProfile_AllProfiles_MenuProc,
                 },
 
             .menuGhostSelection =
                 {
                     .stringIndexTitle = -1,
                     .state = 0x2820,
-#ifdef CTR_NATIVE
                     .funcPtr = SelectProfile_AllProfiles_MenuProc,
-#else
-                    .funcPtr = (void (*)(struct RectMenu *))0x800490c4,
-#endif
                 },
 
             .menuWarning2 =
                 {
                     .stringIndexTitle = -1,
                     .state = 0x2820,
-                    .funcPtr = (void (*)(struct RectMenu *))0x800490c4,
+                    .funcPtr = SelectProfile_AllProfiles_MenuProc,
                 },
 
             .menuSubmitName =
@@ -5196,7 +5193,7 @@ struct Data
                     .unk1 = 0,
                     .state = 0x803,
                     .rows = &data.rowsRetryExit[0],
-                    .funcPtr = (void (*)(struct RectMenu *))0x80055c90,
+                    .funcPtr = UI_RaceEnd_MenuProc,
                     .drawStyle = 4,
                 },
 
