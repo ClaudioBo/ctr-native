@@ -1,7 +1,7 @@
 #include <common.h>
 
 // countdown clock, used for Battle Mode and Crystal Challenge
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004f894-0x8004f9d8
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004f894-0x8004f9d8.
 void UI_DrawLimitClock(s16 posX, s16 posY, s16 fontType)
 {
 	struct GameTracker *gGT;
@@ -29,7 +29,7 @@ void UI_DrawLimitClock(s16 posX, s16 posY, s16 fontType)
 			// when would that ever be false
 
 			// end race for all players
-			for (i = 0; i < gGT->numPlyrCurrGame; i++)
+			for (i = 0; i < (u8)gGT->numPlyrCurrGame; i++)
 			{
 				// pointer of each player (P1, P2, P3, P4)
 				d = gGT->drivers[i];
