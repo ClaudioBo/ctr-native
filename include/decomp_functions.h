@@ -814,6 +814,7 @@ void AH_SaveObj_LInB(struct Instance *savInst);
 void AH_Door_ThDestroy(struct Thread *t);
 void AH_Door_ThTick(struct Thread *t);
 void AH_Door_LInB(struct Instance *inst);
+void AH_Sign_LInB(struct Instance *inst);
 
 void AH_Map_LoadSave_Prim(s16 *vertPos, char *vertCol, void *ot, struct PrimMem *primMem);
 

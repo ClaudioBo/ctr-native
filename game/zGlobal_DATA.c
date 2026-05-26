@@ -35,7 +35,7 @@ int RB_Crystal_LInC();
 void RB_Teeth_LInB();
 int RB_Teeth_LInC();
 
-void AH_Sign_LInB();
+void AH_Sign_LInB(struct Instance *inst);
 // void AH_Door_LInB();		-- DONE
 // void AH_Garage_LInB();		-- DONE
 // void AH_SaveObj_LInB();	-- DONE
@@ -74,9 +74,7 @@ void AH_Sign_LInB();
 // void RB_Teeth_LInB() {}	-- DONE
 // int RB_Teeth_LInC() {}		-- DONE
 
-void AH_Sign_LInB()
-{
-}
+// void AH_Sign_LInB() {}		-- DONE
 // void AH_Door_LInB() {}		-- DONE
 // void AH_Garage_LInB() {}	-- DONE
 // void AH_SaveObj_LInB() {}	-- DONE
@@ -86,7 +84,7 @@ void AH_Sign_LInB()
 #endif
 
 // Missing from Decomp/General:
-// GenericMine, Sign, CS
+// GenericMine, CS
 
 // This inserts debug names if needed
 #if 1

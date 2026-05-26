@@ -1195,6 +1195,7 @@ void RB_Spider_DrawWebs(struct Thread *thread, struct PushBuffer *pb);
 void RB_Follower_ProcessBucket(struct Thread *thread);
 void RB_StartText_ProcessBucket(struct Thread *thread);
 void AH_WarpPad_AllWarppadNum(void);
+void AH_Sign_LInB(struct Instance *inst);
 void MM_Title_SetTrophyDPP(void);
 
 void DrawLevelOvr1P(void *LevRenderList, struct PushBuffer *pb, struct BSP *bspList, struct PrimMem *primMem, void *VisMem10, void *waterEnvMap);
