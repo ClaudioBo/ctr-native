@@ -513,7 +513,7 @@ u32 UI_VsQuipReadDriver(struct Driver *driver, int offset, int size);
 void UI_VsQuipAssign(struct Driver *driver, struct QuipMeta *meta, struct Driver *bestDriver, int characterID);
 void UI_VsQuipAssignAll(void);
 void UI_DrawRankedDrivers(void);
-void UI_DrawDriverIcon(struct Icon *icon, Point point, u_long *ot, u32 transparency, int scale, Color color);
+void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale, u32 color);
 void UI_RenderFrame_AdvHub(void);
 void UI_RenderFrame_Racing(void);
 

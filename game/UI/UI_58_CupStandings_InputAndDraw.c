@@ -287,9 +287,9 @@ void UI_CupStandings_InputAndDraw(void)
 		// Draw character icon
 		UI_DrawDriverIcon(gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[d->driverID]].iconID],
 
-		                  MakePoint(local_58[0], local_58[1]),
+		                  local_58[0], local_58[1], &gGT->backBuffer->primMem,
 
-		                  gGT->pushBuffer_UI.ptrOT, 1, 0x1000, MakeColor(0x80, 0x80, 0x80));
+		                  gGT->pushBuffer_UI.ptrOT, 1, 0x1000, MakeColor(0x80, 0x80, 0x80).self);
 
 		// If this is the first screen of cup standings,
 		// where you see just amount of points added

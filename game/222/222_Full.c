@@ -308,12 +308,12 @@ void AA_EndEvent_DrawMenu(void)
 
 			    gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[gGT->driversInRaceOrder[i]->driverID]].iconID],
 
-			    MakePoint(letterPos[0], 0x60),
+			    letterPos[0], 0x60, &gGT->backBuffer->primMem,
 
 			    // pointer to OT mem
 			    gGT->pushBuffer_UI.ptrOT,
 
-			    1, 0x1000, MakeColor(0x80, 0x80, 0x80));
+			    1, 0x1000, MakeColor(0x80, 0x80, 0x80).self);
 		}
 	}
 

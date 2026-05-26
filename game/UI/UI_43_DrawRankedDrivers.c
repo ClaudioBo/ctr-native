@@ -200,17 +200,15 @@ void UI_DrawRankedDrivers(void)
 					}
 				}
 
-				Color color;
-				color.self = local_30;
 				UI_DrawDriverIcon(
 
 				    gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[iVar14]].iconID],
 
-				    pos,
+				    pos.x, pos.y, &gGT->backBuffer->primMem,
 
 				    gGT->pushBuffer_UI.ptrOT,
 
-				    1, iconScale, color);
+				    1, iconScale, local_30);
 			}
 		}
 	}
