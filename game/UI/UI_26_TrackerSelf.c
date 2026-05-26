@@ -313,5 +313,5 @@ LAB_8004fe8c:
 
 	    screenPosX - (x >> 7), screenPosY - ((y * 0xf) >> 0xb),
 
-	    &gGT->backBuffer->primMem, gGT->pushBuffer[driverid].ptrOT, x, y, bgColor);
+	    &gGT->backBuffer->primMem, gGT->pushBuffer[driverid].ptrOT, 1, x, y, bgColor);
 }

@@ -1,7 +1,7 @@
 #include <common.h>
 
-// byte budget 580/632
-void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct PrimMem *primMem, u_long *ot, s16 angleX, s16 angleY, int color)
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004e660-0x8004e8d8.
+void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct PrimMem *primMem, u_long *ot, char transparency, s16 angleX, s16 angleY, int color)
 {
 	s16 rightX;
 	s16 bottomY;
@@ -45,8 +45,11 @@ void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct Prim
 
 		setPolyFT4(p);
 
-		p->tpage = (p->tpage & 0xff9f);
-		p->code |= 2;
+		if (transparency != 0)
+		{
+			p->tpage = (p->tpage & 0xff9f) | (((u16)transparency - 1) * 0x20);
+			p->code |= 2;
+		}
 
 		// compiler optimization will remove this,
 		// if not using widescreen hacks

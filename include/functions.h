@@ -886,9 +886,9 @@ void UI_Map_DrawRawIcon(int ptrMap, int *param_2, int iconID, int colorID, int u
 void UI_Map_DrawDrivers(int ptrMap, struct Thread *bucket, s16 *param_3);
 void UI_Map_DrawGhosts(int ptrMap, struct Thread *bucket);
 void UI_Map_DrawTracking(int ptrMap, struct Thread *bucket);
-// void UI_WeaponBG_AnimateShine();
+void UI_WeaponBG_AnimateShine();
 // UI_WeaponBG_DrawShine()
-// UI_TrackerBG()
+void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct PrimMem *primMem, u_long *ot, char transparency, s16 angleX, s16 angleY, int color);
 void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, u_long *ot, char transparency, s16 scale, u32 color);
 void UI_Lerp2D_Angular(s16 *ptrPos, s16 drawnPosition, s16 absolutePosition, s16 frameCounter);
 void UI_Lerp2D_HUD(s16 *ptrPos, s16 startX, s16 startY, s16 endX, s16 endY, int curFrame, s16 endFrame);

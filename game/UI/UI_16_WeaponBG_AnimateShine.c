@@ -1,5 +1,6 @@
 #include <common.h>
 
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8004e0e0-0x8004e37c.
 void UI_WeaponBG_AnimateShine(void)
 {
 	int sine;
