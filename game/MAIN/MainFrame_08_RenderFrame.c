@@ -535,6 +535,7 @@ void RenderAllHUD(struct GameTracker *gGT)
 	}
 
 	// if not drawing intro-race title bars
+	else
 	{
 		// if no hud
 		if ((hudFlags & 1) == 0)
