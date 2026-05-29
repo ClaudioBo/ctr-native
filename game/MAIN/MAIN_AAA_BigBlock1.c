@@ -8,6 +8,7 @@
 #include "MainInit_05_JitPoolsNew.c"
 #include "MainInit_06_Drivers.c"
 #include "MainInit_07_FinalizeInit.c"
+#include "MainInit_08_StringToLevID.c"
 #include "MainInit_09_VRAMClear.c"
 #include "MainInit_10_VRAMDisplay.c"
 #include "MainKillGame_00_StopCTR.c"

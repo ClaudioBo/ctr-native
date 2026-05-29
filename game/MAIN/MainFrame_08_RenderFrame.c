@@ -20,7 +20,6 @@ void RenderAllTires(struct GameTracker *gGT);
 void RenderAllShadows(struct GameTracker *gGT);
 void RenderAllHeatParticles(struct GameTracker *gGT);
 void RenderAllLevelGeometry(struct GameTracker *gGT);
-void MultiplayerWumpaHUD(struct GameTracker *gGT);
 void WindowBoxLines(struct GameTracker *gGT);
 void WindowDivsionLines(struct GameTracker *gGT);
 void RenderDispEnv_UI(struct GameTracker *gGT);
@@ -200,7 +199,7 @@ void MainFrame_RenderFrame(struct GameTracker *gGT, struct GamepadSystem *gGamep
 
 		RenderDispEnv_World(gGT); // == RenderDispEnv_World ==
 
-		MultiplayerWumpaHUD(gGT);
+		UI_RenderFrame_Wumpa3D_2P3P4P(gGT);
 
 		if (((gGT->renderFlags & 0x100) != 0) && (gGT->numPlyrCurrGame > 1))
 			DecalMP_03(gGT);

@@ -10,7 +10,6 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 	u32 uVar6;
 	int iVar9;
 	int iVar12;
-	int *piVar15;
 	u32 uVar16;
 	int levelID;
 	int ovrRegion1;
@@ -32,12 +31,10 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 	case 0:
 	{
 		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003368c-0x80033698 for loading-start volume backup/XA pause.
-#ifndef REBUILD_PS1
 		if (!boolPlayMusicDuringLoading)
 		{
 			Cutscene_VolumeBackup();
 		}
-#endif
 		CDSYS_XAPauseRequest();
 
 		// if first boot (SCEA + Copyright + ND Box)
@@ -62,9 +59,16 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 			// used for whole game (except adventure arena)
 			MEMPACK_SwapPacks(0);
 
+			sdata->levelID = MainInit_StringToLevID(gGT->levelName);
+
 			// erase all memory loaded after first boot
 			MEMPACK_PopToState(sdata->bookmarkID);
 		}
+
+		gGT->level1 = 0;
+		gGT->level2 = 0;
+		gGT->numPlyrCurrGame = gGT->numPlyrNextGame;
+		strcpy(gGT->levelName, data.metaDataLEV[levelID].name_Debug);
 
 		// pop back here for every load, after first load,
 		// this permanently reserves LNG, bigfile header, etc
@@ -79,6 +83,8 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		gGT->renderFlags &= 0x1000;
 		gGT->overlayTransition = 0;
 		gGT->Debug_ToggleNormalSpawn = 1;
+		gGT->visMem1 = 0;
+		gGT->visMem2 = 0;
 
 		// Required for Scrapbook "Press Start",
 		// may also be required for other edge-cases
@@ -91,70 +97,40 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		gGT->gameMode1 &= ~(GAME_CUTSCENE | END_OF_RACE | ADVENTURE_ARENA | MAIN_MENU);
 		gGT->gameMode2 &= ~(LEV_SWAP | CREDITS | NO_LEV_INSTANCE);
 
-		// just scrapbook
-		if (levelID >= SCRAPBOOK)
-		{
-			gGT->gameMode1 |= MAIN_MENU;
-		}
-
-		// all credits
-		else if (levelID >= CREDITS_CRASH)
-		{
-			gGT->gameMode1 |= GAME_CUTSCENE;
-			gGT->gameMode2 |= (LEV_SWAP | CREDITS);
-		}
-
-		// Naughty Dog Box Scene,
-		// Oxide Any% ending
-		// Oxide 101% ending
-		else if (levelID >= NAUGHTY_DOG_CRATE)
+		if ((strncmp(gGT->levelName, sdata->s_ndi, 3) == 0) || (strncmp(gGT->levelName, sdata->s_ending, 6) == 0))
 		{
 			gGT->gameMode1 |= GAME_CUTSCENE;
 		}
-
-		// main menu or garage
-		else if (levelID >= MAIN_MENU_LEVEL)
-		{
-			gGT->gameMode1 |= MAIN_MENU;
-		}
-
-		// intro cutscenes
-		else if (levelID >= INTRO_RACE_TODAY)
+		else if (strncmp(gGT->levelName, sdata->s_intro, 5) == 0)
 		{
 			gGT->gameMode1 |= GAME_CUTSCENE;
 			gGT->gameMode2 |= LEV_SWAP;
 		}
-
-		// if you are loading into adventure map:
-		// any of the hubs: "hub1", "hub2", etc
-		else if (levelID >= GEM_STONE_VALLEY)
+		else if ((strncmp(gGT->levelName, sdata->s_screen, 6) == 0) || (strncmp(gGT->levelName, sdata->s_garage, 6) == 0))
 		{
+			gGT->gameMode1 |= MAIN_MENU;
+			gGT->numPlyrNextGame = gGT->numPlyrCurrGame;
+			gGT->numPlyrCurrGame = 4;
+
+			if (strncmp(gGT->levelName, sdata->s_garage, 6) == 0)
+			{
+				gGT->numPlyrCurrGame = 1;
+				sdata->mainMenuState = 4;
+			}
+		}
+		else if (strncmp(gGT->levelName, sdata->s_hub, 3) == 0)
+		{
+			gGT->numPlyrNextGame = 1;
+			gGT->numPlyrCurrGame = 1;
 			gGT->gameMode1 |= ADVENTURE_ARENA;
 			gGT->gameMode2 |= LEV_SWAP;
 		}
-
-
-		// ========== End of flags ===============
-		// ========== Set numPlyr ================
-
-
-		if (levelID <= LAB_BASEMENT)
+		else if (strncmp(gGT->levelName, sdata->s_credit, 6) == 0)
 		{
-			// get CurrGame from main menu's NextGame
-			gGT->numPlyrCurrGame = gGT->numPlyrNextGame;
-		}
-
-		else if (levelID == MAIN_MENU_LEVEL)
-		{
-			// get NextGame from the game you exited
-			gGT->numPlyrNextGame = gGT->numPlyrCurrGame;
-			gGT->numPlyrCurrGame = 4;
-		}
-
-		else
-		{
-			gGT->numPlyrCurrGame = 1;
 			gGT->numPlyrNextGame = 1;
+			gGT->numPlyrCurrGame = 1;
+			gGT->gameMode1 |= GAME_CUTSCENE;
+			gGT->gameMode2 |= (LEV_SWAP | CREDITS);
 		}
 
 
@@ -201,79 +177,64 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		if (sdata->XA_State == 4)
 			return loadingStage;
 
-		// dont load end-of-race in these modes:
-		//	credits, lev swap, cutscene, main menu
-		if ((gGT->gameMode2 & (LEV_SWAP | CREDITS)) != 0)
-			break;
-		if ((gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) != 0)
-			break;
-
-		// === pick overlay to load ===
-
-		// 221 - Crystal Challenge
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80033b38-0x80033c00 for end-event overlay selection.
 		if ((gGT->gameMode1 & CRYSTAL_CHALLENGE) != 0)
 			ovrRegion1 = 0;
 
-		// 223 - Relic Race
-		else if ((gGT->gameMode1 & RELIC_RACE) != 0)
-			ovrRegion1 = 2;
-
-		// 224 - Time Trial
 		else if ((gGT->gameMode1 & TIME_TRIAL) != 0)
 			ovrRegion1 = 3;
 
-		// 222 - Arcade/Trophy/Boss/C-T-R token
-		// if arcade, or adv that isn't listed above
-		else if ((gGT->gameMode1 & (ARCADE_MODE | ADVENTURE_MODE)) != 0)
+		else if ((gGT->gameMode1 & ARCADE_MODE) != 0)
 			ovrRegion1 = 1;
 
-		// default VS/Battle overlay if no mode found
+		else if ((gGT->gameMode1 & RELIC_RACE) != 0)
+			ovrRegion1 = 2;
+
+		else if ((gGT->gameMode1 & ADVENTURE_MODE) != 0)
+			ovrRegion1 = 1;
+
 		else
+		{
 			ovrRegion1 = 4;
+
+			if ((gGT->gameMode2 & CUP_ANY_KIND) != 0)
+				break;
+		}
 
 		LOAD_OvrEndRace(ovrRegion1);
 		break;
 	}
 	case 2:
 	{
-		// force no-load on main menu
-		if (levelID == MAIN_MENU_LEVEL)
-			break;
-
-		// force reload, so that 230 functions are not
-		// overwritten by 233 on first-frame loading,
-		// which starts on X-Press, does not wait AT ALL
-		if (levelID == ADVENTURE_GARAGE)
-			gGT->overlayIndex_LOD = 0xFF;
-
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80033be8-0x80033c00 for LOD overlay selection.
 		LOAD_OvrLOD(gGT->numPlyrCurrGame);
 		break;
 	}
 	case 3:
 	{
-		// main menu + scrapbook, 230
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80033c0c-0x80033cd4 for thread overlay routing.
 		if ((levelID != ADVENTURE_GARAGE) && ((gGT->gameMode1 & MAIN_MENU) != 0))
 		{
 			ovrRegion3 = 0;
 		}
-
-		// race threads, 231
-		else if (levelID <= LAB_BASEMENT)
-		{
-			ovrRegion3 = 1;
-		}
-
-		// advHub, 232
-		else if ((levelID <= CITADEL_CITY) && (gGT->podiumRewardID == NOFUNC) // 0
-		)
-		{
-			ovrRegion3 = 2;
-		}
-
-		// Cutscene, Credits, ND, Garage, Podium
-		else
+		else if ((gGT->gameMode1 & ADVENTURE_ARENA) != 0)
 		{
 			ovrRegion3 = 3;
+
+			if (gGT->podiumRewardID == NOFUNC)
+				ovrRegion3 = 2;
+		}
+		else if ((gGT->podiumRewardID != NOFUNC) || ((gGT->gameMode1 & GAME_CUTSCENE) != 0) || ((gGT->gameMode2 & CREDITS) != 0) ||
+		         (levelID == ADVENTURE_GARAGE))
+		{
+			ovrRegion3 = 3;
+		}
+		else
+		{
+			ovrRegion3 = 1;
+
+			if (gGT->overlayIndex_Threads == 1)
+				break;
 		}
 
 		LOAD_OvrThreads(ovrRegion3);
@@ -290,15 +251,13 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		// If in main menu (character selection, track selection, any part of it)
 		if ((gGT->gameMode1 & MAIN_MENU) != 0)
 		{
-#ifdef REBUILD_PC
-			// reset value, emulate overlay reloading
+#ifdef CTR_NATIVE
+			// NOTE(aalhendi): Native links overlay data instead of reloading overlay 230 BSS, so reset the menu state explicitly.
 			D230.menuMainMenu.state = 0x403;
 #endif
 
-			if (levelID == ADVENTURE_GARAGE)
-				sdata->mainMenuState = 4;
-
-			mainMenuInit[sdata->mainMenuState]();
+			if ((u32)sdata->mainMenuState < len(mainMenuInit))
+				mainMenuInit[sdata->mainMenuState]();
 		}
 
 		// Needed, or else Post-Boss Outro
@@ -319,12 +278,13 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 	}
 	case 5:
 	{
+		// clear and reset
+		LibraryOfModels_Clear(gGT);
+
 		sdata->PLYROBJECTLIST = (int **)((u32)sdata->ptrMPK + 4);
 		if (sdata->ptrMPK == 0)
 			sdata->PLYROBJECTLIST = 0;
 
-		// clear and reset
-		LibraryOfModels_Clear(gGT);
 		LOAD_GlobalModelPtrs_MPK();
 		DecalGlobal_Clear(gGT);
 
@@ -360,10 +320,19 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 				return loadingStage;
 			}
 
-#ifndef REBUILD_PS1
 			Cutscene_VolumeRestore();
-#endif
 		}
+
+#if !defined(CTR_NATIVE)
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80033f1c-0x80033f44; retail converts driver DRAM file headers to model payload pointers here.
+		for (int i = 0; i < 3; i++)
+		{
+			if (data.driverModelExtras[i] != 0)
+				data.driverModelExtras[i] += 4;
+		}
+#else
+		// NOTE(aalhendi): CTR_NATIVE LOAD_DramFile(-2) stores the relocated payload pointer synchronously, so the retail +4 conversion is already applied.
+#endif
 
 		// == banks are done parsing ===
 
@@ -382,7 +351,8 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 				iVar12 = 0x68800;
 			}
 
-#ifdef REBUILD_PC
+#ifdef CTR_NATIVE
+			// NOTE(aalhendi): Native keeps host-side loaded data in the same packs, so these pools need extra headroom.
 			iVar9 = 0x68800 << 1;
 			iVar12 = 0x68800 << 1;
 #endif
@@ -446,8 +416,8 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		// add LEV to loading queue
 		LOAD_AppendQueue(0, LT_GETADDR, LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD, LVI_LEV), NULL, LOAD_Callback_LEV);
 
-		// if world is made of multiple LEVs
-		if ((gGT->gameMode2 & LEV_SWAP) != 0)
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800340c0-0x80034180; retail queues PTR maps by level-ID ranges.
+		if (((u32)(levelID - GEM_STONE_VALLEY) < 0xe) || ((u32)(levelID - CREDITS_CRASH) < 0x14))
 		{
 			// add PTR file to loading queue
 			LOAD_AppendQueue(0, LT_SETADDR, LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD, LVI_PTR), (void *)sdata->PatchMem_Ptr, LOAD_Callback_PatchMem);
@@ -474,41 +444,22 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		{
 			LibraryOfModels_Store(gGT, lev->numModels, lev->ptrModelsPtrArray);
 
-#ifndef REBUILD_PS1
-			// == must use RDATA strings ==
-			// they have bigger sizes that the
-			// search algorithm depends on
-
 			gGT->ptrCircle = (u32)DecalGlobal_FindInLEV(lev, rdata.s_circle);
 			gGT->ptrClod = (u32)DecalGlobal_FindInLEV(lev, rdata.s_clod);
 			gGT->ptrDustpuff = (u32)DecalGlobal_FindInLEV(lev, rdata.s_dustpuff);
 			gGT->ptrSmoking = (u32)DecalGlobal_FindInLEV(lev, rdata.s_smokering); // "Smoke Ring"
 			gGT->ptrSparkle = (u32)DecalGlobal_FindInLEV(lev, rdata.s_sparkle);
-#endif
 		}
 
 		// if linked list of icons exists
 		if (gGT->mpkIcons != 0)
 		{
-			piVar15 = (int *)(*(u32 *)((u32)gGT->mpkIcons + 4));
+			u32 *mpkIconList = (u32 *)*(u32 *)(gGT->mpkIcons + 4);
 
-			// Removed usage of DecalGlobal_FindInMPK
-			// OG game would search every string one-by-one
-
-			for (struct Icon *firstIcon = (struct Icon *)piVar15; *(int *)&firstIcon->name[0]; firstIcon++)
-			{
-				if (
-				    // "lightred"
-				    (*(int *)&firstIcon->name[0] == 0x6867696c) && (*(int *)&firstIcon->name[4] == 0x64657274))
-				{
-					// lets hope the order is the same in every MPK
-					gGT->trafficLightIcon[0] = &firstIcon[1];
-					gGT->trafficLightIcon[1] = &firstIcon[0];
-					gGT->trafficLightIcon[2] = &firstIcon[3];
-					gGT->trafficLightIcon[3] = &firstIcon[2];
-					break;
-				}
-			}
+			gGT->trafficLightIcon[0] = (struct Icon *)DecalGlobal_FindInMPK(mpkIconList, rdata.s_lightredoff);
+			gGT->trafficLightIcon[1] = (struct Icon *)DecalGlobal_FindInMPK(mpkIconList, rdata.s_lightredon);
+			gGT->trafficLightIcon[2] = (struct Icon *)DecalGlobal_FindInMPK(mpkIconList, rdata.s_lightgreenoff);
+			gGT->trafficLightIcon[3] = (struct Icon *)DecalGlobal_FindInMPK(mpkIconList, rdata.s_lightgreenon);
 		}
 
 		gGT->gameMode1_prevFrame = 1;
@@ -606,11 +557,24 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 
 				if (m == 0)
 					continue;
+
+#if !defined(CTR_NATIVE)
+				if (i < 7)
+				{
+					m = (struct Model *)((u8 *)m + 4);
+					modelPtrArr[i] = m;
+				}
+#else
+				// NOTE(aalhendi): Native loader stores these pointers after the file header.
+#endif
+
 				if (m->id == -1)
 					continue;
 
 				gGT->modelPtr[m->id] = m;
 			}
+
+			MEMPACK_SwapPacks(gGT->activeMempackIndex);
 		}
 
 		// Level ID
@@ -669,11 +633,22 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 	}
 	case 9:
 	{
-		// Limited-Rendering scenarios
-		if ((levelID == SCRAPBOOK) || (levelID == MAIN_MENU_LEVEL) || ((gGT->gameMode2 & CREDITS) != 0))
+		if (sdata->XA_State == 2)
+			return loadingStage;
+
+		// MAIN_MENU is used for main menu, scrapbook, and adventure garage.
+		if (((gGT->gameMode1 & MAIN_MENU) != 0) && (gGT->levelID != ADVENTURE_GARAGE))
 		{
-			// disable rendering everything
-			// draw loading screen and instances
+			// disable rendering everything, draw loading screen and instances
+			gGT->renderFlags = (gGT->renderFlags & 0x1000) | 0x20;
+
+			if (RaceFlag_IsFullyOffScreen() == 1)
+				RaceFlag_BeginTransition(1);
+		}
+
+		else if ((gGT->gameMode2 & CREDITS) != 0)
+		{
+			// disable rendering everything, draw loading screen and instances
 			gGT->renderFlags = (gGT->renderFlags & 0x1000) | 0x20;
 		}
 
