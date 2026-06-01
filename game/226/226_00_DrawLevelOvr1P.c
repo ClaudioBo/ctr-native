@@ -121,6 +121,8 @@ static const u32 DRAW_LEVEL_OVR1P_SLOT_WORD_PRESERVE = 0xffffffff;
 static int sOvr226_800a1cc4_InheritedOtIndex;
 static struct QuadBlock **sDrawLevelOvr1P_RenderedOverflowBase;
 static u8 *sDrawLevelOvr1P_ClipRecordStart;
+static u32 sDrawLevelOvr1P_PrimReserveBias;
+static int sDrawLevelOvr1P_ListHandlersSeedRenderedCursor;
 
 struct DrawLevelOvr1PScratchVertex
 {
@@ -3730,7 +3732,7 @@ static int Ovr226_800aa790_TerminalPreamble(struct PushBuffer *pb, const u8 *cur
 
 static int DrawLevelOvr1P_HasClipRecordConsumerPrimReserve(const struct PrimMem *primMem)
 {
-	return (u8 *)primMem->curr + DRAW_LEVEL_OVR1P_CLIP_RECORD_PRIM_RESERVE <= (u8 *)primMem->end;
+	return (u8 *)primMem->curr + DRAW_LEVEL_OVR1P_CLIP_RECORD_PRIM_RESERVE + sDrawLevelOvr1P_PrimReserveBias <= (u8 *)primMem->end;
 }
 
 static int DrawLevelOvr1P_HasBucketPrimReserve(const struct PrimMem *primMem, u32 reserve)
@@ -3738,7 +3740,17 @@ static int DrawLevelOvr1P_HasBucketPrimReserve(const struct PrimMem *primMem, u3
 	u8 *curr = primMem->curr;
 	u8 *end = primMem->end;
 
-	return curr <= end && (size_t)reserve <= (size_t)(end - curr);
+	return curr <= end && (size_t)(reserve + sDrawLevelOvr1P_PrimReserveBias) <= (size_t)(end - curr);
+}
+
+static void DrawLevelOvr1P_SetPrimReserveBias(u32 bias)
+{
+	sDrawLevelOvr1P_PrimReserveBias = bias;
+}
+
+static void DrawLevelOvr1P_SetListHandlersSeedRenderedCursor(int enabled)
+{
+	sDrawLevelOvr1P_ListHandlersSeedRenderedCursor = enabled;
 }
 
 static int DrawLevelOvr1P_ConsumeClipRecords(struct PushBuffer *pb, struct PrimMem *primMem)
@@ -8197,7 +8209,8 @@ static int Ovr226_800a3738_EmitGround4x1ListQuadBlock(struct PushBuffer *pb, str
 static int Ovr226_800a36a8_DrawGround4x1BspList(struct VisMemBspListNode *slot, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem,
                                                 const int *visFaceList)
 {
-	DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
+	if (sDrawLevelOvr1P_ListHandlersSeedRenderedCursor)
+		DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
 
 	while (slot != NULL)
 	{
@@ -8378,7 +8391,8 @@ static int Ovr226_800a5030_EmitGround4x2ListQuadBlock(struct PushBuffer *pb, str
 static int Ovr226_800a4fa0_DrawGround4x2BspList(struct VisMemBspListNode *slot, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem,
                                                 const int *visFaceList)
 {
-	DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
+	if (sDrawLevelOvr1P_ListHandlersSeedRenderedCursor)
+		DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
 
 	while (slot != NULL)
 	{
@@ -8435,7 +8449,8 @@ static int Ovr226_800a6fd0_EmitDynamicListQuadBlock(struct PushBuffer *pb, struc
 static int Ovr226_800a6f40_DrawDynamicBspList(struct VisMemBspListNode *slot, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem,
                                               const int *visFaceList)
 {
-	DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
+	if (sDrawLevelOvr1P_ListHandlersSeedRenderedCursor)
+		DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
 
 	while (slot != NULL)
 	{
@@ -8492,7 +8507,8 @@ static int Ovr226_800a8bf0_EmitWideDynamicQuadBlock(struct PushBuffer *pb, struc
 static int Ovr226_800a8b60_DrawWideDynamicBspList(struct VisMemBspListNode *slot, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem,
                                                   const int *visFaceList)
 {
-	DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
+	if (sDrawLevelOvr1P_ListHandlersSeedRenderedCursor)
+		DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
 
 	while (slot != NULL)
 	{
@@ -9088,7 +9104,8 @@ static void Ovr226_800a1e30_SeedWaterListState(void)
 
 	// NOTE(aalhendi): Retail 0x800a1e30 uses the global 1P retry list, not the
 	// current render-list field, before walking the water BSP list.
-	DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
+	if (sDrawLevelOvr1P_ListHandlersSeedRenderedCursor)
+		DrawLevelOvr1P_SetRenderedListCursor(DrawLevelOvr1P_GetRenderedOverflowBase());
 	CTC2(0, 21);
 	CTC2(0, 22);
 	CTC2(0, 23);
@@ -9645,6 +9662,8 @@ static int Ovr226_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, str
 
 	DrawLevelOvr1P_SetClipRecordStart(data.PtrClipBuffer[0]);
 	DrawLevelOvr1P_SetRenderedOverflowBase(sdata_static.quadBlocksRendered);
+	DrawLevelOvr1P_SetPrimReserveBias(0);
+	DrawLevelOvr1P_SetListHandlersSeedRenderedCursor(1);
 	Ovr226_800a0d20_SeedEntryScratchPointers(renderList, pb);
 	Ovr226_800a0d34_SetEntryGteAndCameraScratch(pb);
 	Ovr226_800a0dc4_ClearProjectedScratch();

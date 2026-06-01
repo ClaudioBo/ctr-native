@@ -121,6 +121,11 @@ static void Ovr227_800a0f60_SetViewportContext(struct PushBuffer *pb, const int 
 {
 	*CTR_SCRATCHPAD_PTR(u32, 0x64) = (u32)(uintptr_t)renderedOverflowBase;
 	*CTR_SCRATCHPAD_PTR(u32, 0x10) = (u32)(uintptr_t)clipCursor;
+	*CTR_SCRATCHPAD_PTR(u32, 0x14) = 0x19c0;
+	*CTR_SCRATCHPAD_PTR(u32, 0x1c) = 0x1000;
+	*CTR_SCRATCHPAD_PTR(u32, 0x20) = 0x800;
+	*CTR_SCRATCHPAD_PTR(u32, 0x24) = 0x600;
+	*CTR_SCRATCHPAD_PTR(u32, 0x28) = 0x300;
 	*CTR_SCRATCHPAD_PTR(u32, 0xc8) = (u32)(uintptr_t)visFaceList;
 	DrawLevelOvr1P_SetClipRecordStart(clipStart);
 	DrawLevelOvr1P_SetRenderedOverflowBase(renderedOverflowBase);
@@ -128,11 +133,12 @@ static void Ovr227_800a0f60_SetViewportContext(struct PushBuffer *pb, const int 
 }
 
 static int Ovr227_DrawViewportBucket(struct DrawLevelOvr1PRenderList *renderList, s32 renderListOffset, struct PushBuffer *pb, struct mesh_info *mesh,
-                                     struct PrimMem *primMem, const int *visFaceList, u8 **clipCursor, int playerIndex)
+                                     struct PrimMem *primMem, const int *visFaceList, u8 **clipCursor, int playerIndex, int applySetup)
 {
 	u32 bucketIndex = (u32)renderListOffset / sizeof(u32);
 	const struct DrawLevelOvr1PBucket *bucket = &sDrawLevelOvr1PBuckets[bucketIndex];
 	void *bucketValue = DrawLevelOvr1P_GetRenderListField(renderList, renderListOffset);
+	u32 setupAddress = R227.bucketSetupAddresses[bucketIndex];
 	u32 handlerAddress = R227.bucketHandlerAddresses[bucketIndex];
 	struct QuadBlock **renderedOverflowBase = (struct QuadBlock **)data.ptrRenderedQuadblockDestination_forEachPlayer[playerIndex];
 
@@ -141,6 +147,9 @@ static int Ovr227_DrawViewportBucket(struct DrawLevelOvr1PRenderList *renderList
 		DrawLevelOvr1P_ClearRenderedListForRole(renderList, bucket->role);
 		return 1;
 	}
+
+	if (applySetup)
+		Ovr227_800a0f04_ApplyBucketSetup(setupAddress);
 
 	Ovr227_800a0f60_SetViewportContext(pb, visFaceList, data.PtrClipBuffer[playerIndex], *clipCursor, renderedOverflowBase);
 	if (!Ovr227_800a0ddc_DispatchBucketHandler(handlerAddress, bucketValue, pb, mesh, primMem, visFaceList))
@@ -155,16 +164,15 @@ static int Ovr227_800a0d9c_DispatchBucketTable(struct DrawLevelOvr1PRenderList *
 {
 	for (s32 renderListOffset = 0x28; renderListOffset >= 0; renderListOffset -= (s32)sizeof(u32))
 	{
-		u32 bucketIndex = (u32)renderListOffset / sizeof(u32);
-		u32 setupAddress = R227.bucketSetupAddresses[bucketIndex];
+		void *viewport0BucketValue = DrawLevelOvr1P_GetRenderListField(&renderLists[0], renderListOffset);
 
 		*CTR_SCRATCHPAD_PTR(u32, 0x34) = (u32)renderListOffset;
-		Ovr227_800a0f04_ApplyBucketSetup(setupAddress);
 
-		if (!Ovr227_DrawViewportBucket(&renderLists[0], renderListOffset, &pushBuffers[0], mesh, primMem, visFaceList0, &clipCursors[0], 0))
+		if (!Ovr227_DrawViewportBucket(&renderLists[0], renderListOffset, &pushBuffers[0], mesh, primMem, visFaceList0, &clipCursors[0], 0, 1))
 			return 0;
 
-		if (!Ovr227_DrawViewportBucket(&renderLists[1], renderListOffset, &pushBuffers[1], mesh, primMem, visFaceList1, &clipCursors[1], 1))
+		if (!Ovr227_DrawViewportBucket(&renderLists[1], renderListOffset, &pushBuffers[1], mesh, primMem, visFaceList1, &clipCursors[1], 1,
+		                               viewport0BucketValue == NULL))
 			return 0;
 	}
 
@@ -211,6 +219,8 @@ static int Ovr227_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, str
 	if (mesh->ptrQuadBlockArray == NULL)
 		return 1;
 
+	DrawLevelOvr1P_SetPrimReserveBias(0xd00);
+	DrawLevelOvr1P_SetListHandlersSeedRenderedCursor(0);
 	Ovr226_800a0dc4_ClearProjectedScratch();
 	Ovr227_800a0d68_CopyScratchInitTable();
 
