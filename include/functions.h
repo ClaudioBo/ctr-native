@@ -871,6 +871,8 @@ void CS_LoadBossCallback(struct LoadQueueSlot *lqs);
 void CS_Camera_ThTick_Boss(struct Thread *t);
 u8 CS_Camera_BoolGotoBoss(void);
 void CS_Camera_ThTick_Podium(struct Thread *th);
+void CS_OVR233_InitData(void);
+char *CS_OVR233_TranslateRetailOpcodePointer(char *opCodeAt);
 int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs);
 void CS_Thread_AnimateScale(struct Thread *t);
 void CS_Thread_MoveOnPath(struct Thread *t);

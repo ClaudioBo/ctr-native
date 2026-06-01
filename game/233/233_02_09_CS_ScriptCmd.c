@@ -117,9 +117,14 @@ void CS_ScriptCmd_OpcodeNext(struct CutsceneObj *cs)
 	CS_ScriptCmd_ReadOpcode_Main(cs);
 }
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac1ec-0x800ac214
+// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac1ec-0x800ac214.
+// CTR_NATIVE translates retail bytecode branch targets before the retail body.
 void CS_ScriptCmd_OpcodeAt(struct CutsceneObj *cs, char *opCodeAt)
 {
+#ifdef CTR_NATIVE
+	opCodeAt = CS_OVR233_TranslateRetailOpcodePointer(opCodeAt);
+#endif
+
 	cs->currOpcode[0] = opCodeAt;
 	cs->prevOpcode = (char *)-1;
 	CS_ScriptCmd_ReadOpcode_Main(cs);

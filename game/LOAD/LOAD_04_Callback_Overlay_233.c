@@ -1,7 +1,5 @@
 #include <common.h>
 
-void CS_OVR233_InitData(void);
-
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80031a38-0x80031a50.
 void LOAD_Callback_Overlay_233(void)
 {
