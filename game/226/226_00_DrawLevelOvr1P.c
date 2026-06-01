@@ -9189,12 +9189,12 @@ static int Ovr226_800a1e30_DrawWaterBspList(struct VisMemBspListNode *slot, stru
 }
 
 static int Ovr226_800a30f0_WaterRenderedFaceGate(struct PushBuffer *pb, struct PrimMem *primMem, struct QuadBlock *block,
-                                                         const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex, int depth,
-                                                         u32 allowedMask, u_long *inheritedOtEntry);
+                                                 const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex, int depth,
+                                                 u32 allowedMask, u_long *inheritedOtEntry);
 
 static int Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(struct PushBuffer *pb, struct PrimMem *primMem, struct QuadBlock *block,
-                                                               const struct DrawLevelOvr1PScratchVertex *projected, int faceIndex, int depth, u32 handlerAddress,
-                                                               int handlerSlot, u32 allowedMask, u_long *inheritedOtEntry)
+                                                               const struct DrawLevelOvr1PScratchVertex *projected, int faceIndex, int depth,
+                                                               u32 handlerAddress, int handlerSlot, u32 allowedMask, u_long *inheritedOtEntry)
 {
 	(void)handlerSlot;
 
@@ -9204,132 +9204,168 @@ static int Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(struct PushBuffer
 	// Native uses the C call stack for the retail t9/ra scratch return stack, but
 	// the label order, frame+0xb4 writes, and t2 direct-mask constants match the
 	// refreshed NTSC-U 926 objdump for this span.
+	// 228/229 water-rendered RDATA uses shifted copies of this wrapper table;
+	// those labels alias to the same owned helper sequences after target checks.
 	switch (handlerAddress)
 	{
 	case 0x800a2da0:
+	case 0x800a2024:
+	case 0x800a20d8:
 		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[0], faceIndex, depth, allowedMask,
-		                                                     inheritedOtEntry);
+		                                             inheritedOtEntry);
 	case 0x800a2db4:
+	case 0x800a2038:
+	case 0x800a20ec:
 		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[1], faceIndex, depth, allowedMask,
-		                                                     inheritedOtEntry);
+		                                             inheritedOtEntry);
 	case 0x800a2dc8:
+	case 0x800a204c:
+	case 0x800a2100:
 		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[2], faceIndex, depth, allowedMask,
-		                                                     inheritedOtEntry);
+		                                             inheritedOtEntry);
 	case 0x800a2ddc:
+	case 0x800a2060:
+	case 0x800a2114:
 		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridFaceIndices[3], faceIndex, depth, allowedMask,
-		                                                     inheritedOtEntry);
+		                                             inheritedOtEntry);
 	case 0x800a2df0:
-		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[0], faceIndex, depth,
-		                                                     allowedMask, inheritedOtEntry);
+	case 0x800a2074:
+	case 0x800a2128:
+		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[0], faceIndex, depth, allowedMask,
+		                                             inheritedOtEntry);
 	case 0x800a2e04:
-		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[1], faceIndex, depth,
-		                                                     allowedMask, inheritedOtEntry);
+	case 0x800a2088:
+	case 0x800a213c:
+		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[1], faceIndex, depth, allowedMask,
+		                                             inheritedOtEntry);
 	case 0x800a2e18:
-		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[2], faceIndex, depth,
-		                                                     allowedMask, inheritedOtEntry);
+	case 0x800a209c:
+	case 0x800a2150:
+		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[2], faceIndex, depth, allowedMask,
+		                                             inheritedOtEntry);
 	case 0x800a2e2c:
-		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[3], faceIndex, depth,
-		                                                     allowedMask, inheritedOtEntry);
+	case 0x800a20b0:
+	case 0x800a2164:
+		return Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridExtraFaceIndices[3], faceIndex, depth, allowedMask,
+		                                             inheritedOtEntry);
 	case 0x800a2e40:
+	case 0x800a20c4:
+	case 0x800a2178:
 		if (!Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[0], faceIndex, depth,
-		                                                   DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
+		                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[1], faceIndex, depth,
-		                                                   DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
+		                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2da0, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2da0, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2e80:
+	case 0x800a2104:
+	case 0x800a21b8:
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e18, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e2c, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e2c, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2ea0:
+	case 0x800a2124:
+	case 0x800a21d8:
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2df0, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e04, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e04, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2ec0:
+	case 0x800a2144:
+	case 0x800a21f8:
 		if (!Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[2], faceIndex, depth,
-		                                                   DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
+		                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a30f0_WaterRenderedFaceGate(pb, primMem, block, projected, sDrawLevelOvr1PGridMixedFaceIndices[3], faceIndex, depth,
-		                                                   DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
+		                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2ddc, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2ddc, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2f00:
+	case 0x800a2184:
+	case 0x800a2238:
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e2c, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1, DRAW_LEVEL_OVR1P_DIRECT_TRI_PRIMARY,
-		                                                inheritedOtEntry))
+		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1,
+		                                                         DRAW_LEVEL_OVR1P_DIRECT_TRI_PRIMARY, inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2da0, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2f28:
+	case 0x800a21ac:
+	case 0x800a2260:
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e04, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1, DRAW_LEVEL_OVR1P_DIRECT_TRI_PRIMARY,
-		                                                inheritedOtEntry))
+		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1,
+		                                                         DRAW_LEVEL_OVR1P_DIRECT_TRI_PRIMARY, inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2da0, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2f50:
+	case 0x800a21d4:
+	case 0x800a2288:
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2e18, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1, DRAW_LEVEL_OVR1P_DIRECT_TRI_SECONDARY,
-		                                                inheritedOtEntry))
+		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1,
+		                                                         DRAW_LEVEL_OVR1P_DIRECT_TRI_SECONDARY, inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2ddc, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2ddc, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2f78:
+	case 0x800a21fc:
+	case 0x800a22b0:
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2df0, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1, DRAW_LEVEL_OVR1P_DIRECT_TRI_SECONDARY,
-		                                                inheritedOtEntry))
+		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2db4, -1,
+		                                                         DRAW_LEVEL_OVR1P_DIRECT_TRI_SECONDARY, inheritedOtEntry))
 			return 0;
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2dc8, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
-		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2ddc, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, faceIndex, depth, 0x800a2ddc, -1,
+		                                                           DRAW_LEVEL_OVR1P_DIRECT_QUAD, inheritedOtEntry);
 	case 0x800a2fa0:
+	case 0x800a2224:
+	case 0x800a22d8:
 		DrawLevelOvr1P_SetGridFaceSlot(projected, 0);
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, 0, depth, 0x800a2da0, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
 		DrawLevelOvr1P_SetGridFaceSlot(projected, 1);
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, 1, depth, 0x800a2db4, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
 		DrawLevelOvr1P_SetGridFaceSlot(projected, 2);
 		if (!Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, 2, depth, 0x800a2dc8, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                inheritedOtEntry))
+		                                                         inheritedOtEntry))
 			return 0;
 		DrawLevelOvr1P_SetGridFaceSlot(projected, 3);
 		return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, 3, depth, 0x800a2ddc, -1, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
-		                                                  inheritedOtEntry);
+		                                                           inheritedOtEntry);
 	default:
 		return 1;
 	}
@@ -9396,8 +9432,7 @@ static int Ovr226_800a333c_EmitWaterRenderedGT3RawOrClip(struct PushBuffer *pb, 
 }
 
 static int Ovr226_800a33e0_EmitWaterRenderedGT4RawOrClip(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
-                                                         const struct DrawLevelOvr1PScratchVertex *projected, const int *indices,
-                                                         u_long *inheritedOtEntry)
+                                                         const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, u_long *inheritedOtEntry)
 {
 	if (inheritedOtEntry == NULL)
 		return 1;
@@ -9412,19 +9447,26 @@ static int Ovr226_800a33e0_EmitWaterRenderedGT4RawOrClip(struct PushBuffer *pb, 
 }
 
 static int Ovr226_800a3318_DispatchWaterRenderedDirectTail(struct PushBuffer *pb, struct PrimMem *primMem, const struct QuadBlock *block,
-                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices,
-                                                           u_long *inheritedOtEntry)
+                                                           const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, u_long *inheritedOtEntry)
 {
 	u32 directMask = *CTR_SCRATCHPAD_PTR(u32, 0x70);
 	u32 handlerAddress = DrawLevelOvr1P_GetDirectHandlerAddress(directMask);
 
+	// NOTE(aalhendi): 228/229 water-rendered direct tables use shifted retail
+	// labels with the same raw/clip packet ABI; alias them to the owned writers.
 	switch (handlerAddress)
 	{
 	case 0x800a333c:
+	case 0x800a25bc:
+	case 0x800a2670:
 		return Ovr226_800a333c_EmitWaterRenderedGT3RawOrClip(pb, primMem, block, projected, indices, 0, inheritedOtEntry);
 	case 0x800a3334:
+	case 0x800a25b4:
+	case 0x800a2668:
 		return Ovr226_800a333c_EmitWaterRenderedGT3RawOrClip(pb, primMem, block, projected, indices, 1, inheritedOtEntry);
 	case 0x800a33e0:
+	case 0x800a2660:
+	case 0x800a2714:
 		return Ovr226_800a33e0_EmitWaterRenderedGT4RawOrClip(pb, primMem, block, projected, indices, inheritedOtEntry);
 	default:
 		return 1;
@@ -9432,8 +9474,8 @@ static int Ovr226_800a3318_DispatchWaterRenderedDirectTail(struct PushBuffer *pb
 }
 
 static int Ovr226_800a31bc_WaterRenderedNearDispatch(struct PushBuffer *pb, struct PrimMem *primMem, struct QuadBlock *block,
-                                                      const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex, int depth,
-                                                      u32 allowedMask, u_long *inheritedOtEntry)
+                                                     const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex, int depth,
+                                                     u32 allowedMask, u_long *inheritedOtEntry)
 {
 	struct DrawLevelOvr1PScratchVertex *sub;
 	u32 nearMask;
@@ -9463,8 +9505,8 @@ static int Ovr226_800a31bc_WaterRenderedNearDispatch(struct PushBuffer *pb, stru
 }
 
 static int Ovr226_800a30f0_WaterRenderedFaceGate(struct PushBuffer *pb, struct PrimMem *primMem, struct QuadBlock *block,
-                                                         const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex, int depth,
-                                                         u32 allowedMask, u_long *inheritedOtEntry)
+                                                 const struct DrawLevelOvr1PScratchVertex *projected, const int *indices, int faceIndex, int depth,
+                                                 u32 allowedMask, u_long *inheritedOtEntry)
 {
 	u32 directMask;
 
@@ -9484,7 +9526,8 @@ static int Ovr226_800a30f0_WaterRenderedFaceGate(struct PushBuffer *pb, struct P
 	return Ovr226_800a31bc_WaterRenderedNearDispatch(pb, primMem, block, projected, indices, faceIndex, depth, directMask, inheritedOtEntry);
 }
 
-static int DrawLevelOvr1P_DrawRenderedWaterQuadBlock(struct PushBuffer *pb, struct PrimMem *primMem, struct mesh_info *mesh, struct QuadBlock *block)
+static int DrawLevelOvr1P_DrawRenderedWaterQuadBlockWithDefaultHandler(struct PushBuffer *pb, struct PrimMem *primMem, struct mesh_info *mesh,
+                                                                       struct QuadBlock *block, u32 defaultHandlerAddress)
 {
 	struct LevVertex *vertices = mesh->ptrVertexArray;
 	struct DrawLevelOvr1PScratchVertex *projected = DrawLevelOvr1P_GetScratchVertices();
@@ -9492,13 +9535,19 @@ static int DrawLevelOvr1P_DrawRenderedWaterQuadBlock(struct PushBuffer *pb, stru
 	Ovr226_800a2924_ProjectWaterRenderedGrid(vertices, block, projected);
 	Ovr226_800a2c4c_ApplyWaterRenderedColorFades(projected);
 
-	// NOTE(aalhendi): Retail water-rendered helper dispatch enters the
-	// 0x800a2fa0 default wrapper with no inherited GP/OT pointer.
-	return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, 0, 0, 0x800a2fa0, 5, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
+	// NOTE(aalhendi): Retail water-rendered helper dispatch enters the current
+	// overlay's default wrapper with no inherited GP/OT pointer.
+	return Ovr226_800a2da0_DispatchWaterRenderedHelperWrappers(pb, primMem, block, projected, 0, 0, defaultHandlerAddress, 5, DRAW_LEVEL_OVR1P_DIRECT_QUAD,
 	                                                           NULL);
 }
 
-static int Ovr226_800a2904_DrawWaterRenderedList(struct QuadBlock **renderedList, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem)
+static int DrawLevelOvr1P_DrawRenderedWaterQuadBlock(struct PushBuffer *pb, struct PrimMem *primMem, struct mesh_info *mesh, struct QuadBlock *block)
+{
+	return DrawLevelOvr1P_DrawRenderedWaterQuadBlockWithDefaultHandler(pb, primMem, mesh, block, 0x800a2fa0);
+}
+
+static int Ovr226_800a2904_DrawWaterRenderedListWithDefaultHandler(struct QuadBlock **renderedList, struct PushBuffer *pb, struct mesh_info *mesh,
+                                                                   struct PrimMem *primMem, u32 defaultHandlerAddress)
 {
 	if (renderedList == NULL)
 		return 1;
@@ -9516,11 +9565,16 @@ static int Ovr226_800a2904_DrawWaterRenderedList(struct QuadBlock **renderedList
 			return 1;
 		}
 
-		if (!DrawLevelOvr1P_DrawRenderedWaterQuadBlock(pb, primMem, mesh, block))
+		if (!DrawLevelOvr1P_DrawRenderedWaterQuadBlockWithDefaultHandler(pb, primMem, mesh, block, defaultHandlerAddress))
 			return 0;
 
 		renderedList++;
 	}
+}
+
+static int Ovr226_800a2904_DrawWaterRenderedList(struct QuadBlock **renderedList, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem)
+{
+	return Ovr226_800a2904_DrawWaterRenderedListWithDefaultHandler(renderedList, pb, mesh, primMem, 0x800a2fa0);
 }
 
 static int DrawLevelOvr1P_DrawRenderedQuadBlocks(struct QuadBlock **renderedList, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem,

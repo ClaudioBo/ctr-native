@@ -7,6 +7,8 @@ typedef int (*Ovr229ClipConsumer)(struct PushBuffer *pb, struct PrimMem *primMem
 enum Ovr229DrawLevelConstants
 {
 	OVR229_WATER_BSP_LIST_HANDLER = 0x800a1178,
+	OVR229_WATER_RENDERED_HANDLER = 0x800a1c3c,
+	OVR229_WATER_RENDERED_DEFAULT_WRAPPER = 0x800a22d8,
 	OVR229_WATER_BSP_LIST_PRIM_RESERVE_BIAS = 0x1d40,
 };
 
@@ -192,13 +194,22 @@ static int Ovr229_800a1178_DrawWaterBspList(void *bucketValue, struct PushBuffer
 	return Ovr226_800a1e30_DrawWaterBspList((struct VisMemBspListNode *)bucketValue, pb, mesh, primMem, visFaceList);
 }
 
-static int Ovr229_800a1178_800a1c3c_BucketDispatch(u32 handlerAddress, void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh,
+static int Ovr229_800a1c3c_DrawWaterRenderedList(void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh, struct PrimMem *primMem)
+{
+	DrawLevelOvr1P_SetPrimReserveBias(OVR229_WATER_BSP_LIST_PRIM_RESERVE_BIAS);
+	return Ovr226_800a2904_DrawWaterRenderedListWithDefaultHandler((struct QuadBlock **)bucketValue, pb, mesh, primMem, OVR229_WATER_RENDERED_DEFAULT_WRAPPER);
+}
+
+static int Ovr229_800a1178_800a29dc_BucketDispatch(u32 handlerAddress, void *bucketValue, struct PushBuffer *pb, struct mesh_info *mesh,
                                                    struct PrimMem *primMem, const int *visFaceList)
 {
 	if (handlerAddress == OVR229_WATER_BSP_LIST_HANDLER)
 		return Ovr229_800a1178_DrawWaterBspList(bucketValue, pb, mesh, primMem, visFaceList);
 
-	// NOTE(aalhendi): Bucket families outside 0x800a1178..0x800a1c3c remain
+	if (handlerAddress == OVR229_WATER_RENDERED_HANDLER)
+		return Ovr229_800a1c3c_DrawWaterRenderedList(bucketValue, pb, mesh, primMem);
+
+	// NOTE(aalhendi): Bucket families outside 0x800a1178..0x800a29dc remain
 	// unported. Fail closed if this audit-only entry reaches them.
 	return 0;
 }
@@ -302,5 +313,5 @@ int Ovr229_800a0cbc_Entry(void *LevRenderList, struct PushBuffer *pb, struct BSP
                           void *VisMem18, void *VisMem1C, void *waterEnvMap)
 {
 	return Ovr229_800a0cbc_EntryWithCallbacks(LevRenderList, pb, bspList, primMem, VisMem10, VisMem14, VisMem18, VisMem1C, waterEnvMap,
-	                                          Ovr229_800a1178_800a1c3c_BucketDispatch, Ovr229_UnportedClipConsumer);
+	                                          Ovr229_800a1178_800a29dc_BucketDispatch, Ovr229_UnportedClipConsumer);
 }
