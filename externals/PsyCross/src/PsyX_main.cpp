@@ -3,7 +3,6 @@
 #include "PsyX/PsyX_version.h"
 #include "PsyX/PsyX_globals.h"
 #include "PsyX/PsyX_public.h"
-#include "PsyX/util/timer.h"
 
 #include "gpu/PsyX_GPU.h"
 #include "pad/PsyX_pad.h"
@@ -44,7 +43,6 @@ SDL_Window* g_window = NULL;
 int g_swapInterval = 1;
 int g_enableSwapInterval = 1;
 int g_skipSwapInterval = 0;
-timerCtx_t g_vblTimer;
 
 int							g_cfg_swapInterval = 0;
 PsyXKeyboardMapping			g_cfg_keyboardMapping;
@@ -64,20 +62,6 @@ enum EPsxCounters
 
 volatile int g_psxSysCounters[PsxCounter_Num];
 
-SDL_Thread* g_intrThread = NULL;
-SDL_mutex* g_intrMutex = NULL;
-volatile char g_stopIntrThread = 0;
-
-#if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
-extern "C" {
-#endif
-
-extern void(*vsync_callback)(void);
-
-#if defined(_LANGUAGE_C_PLUS_PLUS)||defined(__cplusplus)||defined(c_plusplus)
-}
-#endif
-
 extern int	PsyX_Pad_InitSystem();
 extern void PsyX_Pad_Event_ControllerRemoved(Sint32 deviceId);
 extern void PsyX_Pad_Event_ControllerAdded(Sint32 deviceId);
@@ -94,55 +78,10 @@ extern void GR_UpdateSwapIntervalState(int swapInterval);
 int g_vmode = -1;
 int g_frameSkip = 0;
 
-#ifdef __EMSCRIPTEN__
-
-int g_emIntrInterval = -1;
-int g_intrVMode = MODE_NTSC;
-double g_emOldDate = 0;
-
-void emIntrCallback(void* userData)
-{
-	double timestep = g_vmode == MODE_NTSC ? FIXED_TIME_STEP_NTSC : FIXED_TIME_STEP_PAL;
-
-	int newVBlank = (Util_GetHPCTime(&g_vblTimer, 0) / timestep) + g_frameSkip;
-
-	int diff = newVBlank - g_psxSysCounters[PsxCounter_VBLANK];
-
-	while (diff--)
-	{
-		if (vsync_callback)
-			vsync_callback();
-
-		g_psxSysCounters[PsxCounter_VBLANK]++;
-	}
-}
-
-EM_BOOL emIntrCallback2(double time, void* userData)
-{
-	emIntrCallback(userData);
-	return g_stopIntrThread ? EM_FALSE : EM_TRUE;
-}
-
-#endif
-
 int PsyX_Sys_SetVMode(int mode)
 {
 	int old = g_vmode;
 	g_vmode = mode;
-
-#ifdef __EMSCRIPTEN__
-	if (old != g_vmode)
-	{
-		//if(g_emIntrInterval != -1)
-		//	emscripten_clear_interval(g_emIntrInterval);
-		g_stopIntrThread = 1;
-
-		emscripten_sleep(100);
-
-		g_stopIntrThread = 0;
-		emscripten_set_timeout_loop(emIntrCallback2, 1.0, NULL);
-	}
-#endif
 
 	return old;
 }
@@ -152,7 +91,7 @@ int PsyX_Sys_GetVBlankCount()
 	if (g_skipSwapInterval)
 	{
 		// extra speedup.
-		// does not affect `vsync_callback` count
+		// does not emit VBlank callbacks.
 		g_psxSysCounters[PsxCounter_VBLANK] += 1;
 		g_frameSkip++;
 	}
@@ -160,59 +99,8 @@ int PsyX_Sys_GetVBlankCount()
 	return g_psxSysCounters[PsxCounter_VBLANK];
 }
 
-int intrThreadMain(void* data)
-{
-	Util_InitHPCTimer(&g_vblTimer);
-
-	while (!g_stopIntrThread)
-	{
-		// step counters
-		{
-			const double timestep = g_vmode == MODE_NTSC ? FIXED_TIME_STEP_NTSC : FIXED_TIME_STEP_PAL;
-			const double vblDelta = Util_GetHPCTime(&g_vblTimer, 0);
-
-			if (vblDelta > timestep)
-			{
-				SDL_LockMutex(g_intrMutex);
-				
-				if (vsync_callback)
-					vsync_callback();
-				
-				SDL_UnlockMutex(g_intrMutex);
-				
-				// do vblank events
-				g_psxSysCounters[PsxCounter_VBLANK]++;
-			
-				Util_GetHPCTime(&g_vblTimer, 1);
-			}
-			
-		}
-	}
-
-	return 0;
-}
-
 static int PsyX_Sys_InitialiseCore()
 {
-#ifdef __EMSCRIPTEN__
-	Util_InitHPCTimer(&g_vblTimer);
-#else
-
-	g_intrThread = SDL_CreateThread(intrThreadMain, "psyX_intr", NULL);
-
-	if (NULL == g_intrThread)
-	{
-		eprinterr("SDL_CreateThread failed: %s\n", SDL_GetError());
-		return 0;
-	}
-	
-	g_intrMutex = SDL_CreateMutex();
-	if (NULL == g_intrMutex)
-	{
-		eprinterr("SDL_CreateMutex failed: %s\n", SDL_GetError());
-		return 0;
-	}
-#endif
 	return 1;
 }
 
@@ -1010,17 +898,6 @@ void PsyX_Shutdown()
 {
 	if (!g_window)
 		return;
-
-	// quit vblank thread
-	if (g_intrThread)
-	{
-		g_stopIntrThread = 1;
-
-		int returnValue;
-		SDL_WaitThread(g_intrThread, &returnValue);
-
-		SDL_DestroyMutex(g_intrMutex);
-	}
 
 	SDL_DestroyWindow(g_window);
 	g_window = NULL;

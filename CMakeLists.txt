@@ -76,6 +76,7 @@ add_custom_command(TARGET psycross POST_BUILD
         --redefine-sym ${_P}alDeleteEffects=${_P}_psx_alDeleteEffects
         --redefine-sym ${_P}alAuxiliaryEffectSloti=${_P}_psx_alAuxiliaryEffectSloti
         --redefine-sym ${_P}VSync=${_P}_psx_VSync
+        --redefine-sym ${_P}VSyncCallback=${_P}_psx_VSyncCallback
         $<TARGET_FILE:psycross> $<TARGET_FILE:psycross>.fixed
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:psycross>.fixed $<TARGET_FILE:psycross>
     COMMENT "Renaming conflicting OpenAL EFX symbols in psycross"

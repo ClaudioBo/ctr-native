@@ -43,9 +43,40 @@ __declspec(dllimport) unsigned long __stdcall GetLastError(void);
 #include "PsyX/PsyX_render.h"
 #include "ctr_scratchpad.h"
 
-static Uint32 startTick;
-#define ResetRCnt(x) startTick = SDL_GetTicks();
-#define GetRCnt(x)   ((SDL_GetTicks() - startTick) * 15720) / 1000
+#define CTR_NATIVE_RCNT1_HZ 15720u
+
+static Uint64 s_rootCounterBase = 0;
+
+static int Native_GetRCnt(int spec)
+{
+	const Uint64 freq = SDL_GetPerformanceFrequency();
+	const Uint64 now = SDL_GetPerformanceCounter();
+	Uint64 elapsed;
+	Uint64 counts;
+
+	(void)spec;
+
+	if (s_rootCounterBase == 0)
+		s_rootCounterBase = now;
+
+	elapsed = now - s_rootCounterBase;
+	counts = ((elapsed / freq) * CTR_NATIVE_RCNT1_HZ) + (((elapsed % freq) * CTR_NATIVE_RCNT1_HZ) / freq);
+	if (counts > 0x7fffffff)
+		return 0x7fffffff;
+
+	return (int)counts;
+}
+
+static int Native_ResetRCnt(int spec)
+{
+	(void)spec;
+
+	s_rootCounterBase = SDL_GetPerformanceCounter();
+	return 0;
+}
+
+#define ResetRCnt(x) Native_ResetRCnt(x)
+#define GetRCnt(x)   Native_GetRCnt(x)
 
 #define BUILD        926
 #define u_long       u32
@@ -310,32 +341,73 @@ int NikoGetEnterKey(void)
 	return (kb && kb[SDL_SCANCODE_RETURN]) ? 1 : 0;
 }
 
-// NOTE(aalhendi): PS1 VSync emulation; game's primary frame throttle.
-static Uint32 s_nextVBlank = 0;
+// NOTE(aalhendi): Native owns the CTR VBlank clock instead of PsyCross's
+// autonomous interrupt thread. CTR only registers MainDrawCb_Vsync (or clears
+// it on shutdown), so native mirrors the SDK VSyncCallback contract directly
+// and emits the registered callback from VSync().
+static Uint64 s_nextVBlankCounter = 0;
+static Uint64 s_vblankRemainder = 0;
+static int s_nativeVBlankCount = 0;
+static void (*s_nativeVSyncCallback)(void) = NULL;
+
+int VSyncCallback(void (*func)(void))
+{
+	int old = (int)s_nativeVSyncCallback;
+
+	s_nativeVSyncCallback = func;
+	return old;
+}
+
+static void Native_WaitNextVBlank(void)
+{
+	const Uint64 freq = SDL_GetPerformanceFrequency();
+	const Uint64 hz = VBLANK_FREQUENCY_NTSC; // NOTE(aalhendi): ctr-native targets NTSC-U 926.
+
+	if (s_nextVBlankCounter == 0)
+		s_nextVBlankCounter = SDL_GetPerformanceCounter();
+
+	s_nextVBlankCounter += freq / hz;
+	s_vblankRemainder += freq % hz;
+	if (s_vblankRemainder >= hz)
+	{
+		s_nextVBlankCounter++;
+		s_vblankRemainder -= hz;
+	}
+
+	while (1)
+	{
+		const Uint64 now = SDL_GetPerformanceCounter();
+
+		if ((Sint64)(s_nextVBlankCounter - now) <= 0)
+			return;
+
+		const Uint64 remaining = s_nextVBlankCounter - now;
+		const Uint64 remainingMs = (remaining * 1000) / freq;
+
+		if (remainingMs > 1)
+			SDL_Delay((Uint32)(remainingMs - 1));
+		else
+			SDL_Delay(0);
+	}
+}
 
 int VSync(int mode)
 {
-	// NOTE(aalhendi): determine how many ms supposed to wait.
-	// On PS1, mode <= 0 means wait for the next single VBlank (~16ms).
-	// mode > 0 means explicitly wait for 'mode' number of VBlanks (mode * 16ms).
-	Uint32 wait_ms = (mode <= 0) ? 16 : (16 * mode);
+	int vblankCount;
 
-	Uint32 now = SDL_GetTicks();
+	if (mode < 0)
+		return s_nativeVBlankCount;
 
-	if (s_nextVBlank != 0 && now < s_nextVBlank)
+	vblankCount = (mode == 0) ? 1 : mode;
+
+	for (int i = 0; i < vblankCount; i++)
 	{
-		SDL_Delay(s_nextVBlank - now);
-		now = SDL_GetTicks();
+		Native_WaitNextVBlank();
+		if (s_nativeVSyncCallback != NULL)
+			s_nativeVSyncCallback();
+
+		s_nativeVBlankCount++;
 	}
 
-#ifdef CTR_INTERNAL
-	const Uint32 OVERRUN_THRESHOLD_MS = 8;
-	if (s_nextVBlank != 0 && now > s_nextVBlank + OVERRUN_THRESHOLD_MS)
-	{
-		// fprintf(stderr, "[CTR] VSync overrun by %d ms\n", now - s_nextVBlank);
-	}
-#endif
-
-	s_nextVBlank = now + wait_ms;
-	return (int)(now & 0x7FFF);
+	return s_nativeVBlankCount;
 }

@@ -1168,9 +1168,8 @@ void RenderVSYNC(struct GameTracker *gGT)
 
 #ifdef CTR_NATIVE
 		// NOTE(aalhendi): Retail waits on GPU/vblank hardware here. Native
-		// must yield so the emulated vblank/audio/input thread can advance
-		// instead of busy-spinning DrawSync hundreds of thousands of times.
-		SDL_Delay(1);
+		// owns that wait in VSync(), which also emits the VBlank callback.
+		VSync(0);
 #endif
 
 #ifndef CTR_NATIVE

@@ -620,6 +620,11 @@ void StateZero()
 	{
 		// WARNING: Read-only address (ram, 0x8008d888) is written
 		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c940-0x8003c948 for startup XA pause polling.
+#ifdef CTR_NATIVE
+		// NOTE(aalhendi): Retail hardware interrupts keep XA/audio moving while
+		// this loop spins. Native owns VBlank in VSync(), so pump it here.
+		VSync(0);
+#endif
 		CDSYS_XAPauseAtEnd();
 	}
 #endif
