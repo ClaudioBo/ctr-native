@@ -15,6 +15,7 @@ extern void PsyX_SPUAL_ShutdownSound();
 
 // Private
 extern int PsyX_SPUAL_Alloc(int size);
+extern int PsyX_SPUAL_AllocWithStartAddr(u_int addr, int size);
 extern int PsyX_SPUAL_InitAlloc(int num, char* top);
 extern void PsyX_SPUAL_Free(u_int addr);
 extern u_int PsyX_SPUAL_Write(u_char* addr, u_int size);
@@ -32,8 +33,22 @@ extern void PsyX_SPUAL_GetAllKeysStatus(char* status);
 extern int PsyX_SPUAL_SetMute(int on_off);
 extern int PsyX_SPUAL_SetReverb(int on_off);
 extern int PsyX_SPUAL_GetReverbState();
+extern int PsyX_SPUAL_SetReverbModeParam(SpuReverbAttr* attr);
+extern void PsyX_SPUAL_GetReverbModeParam(SpuReverbAttr* attr);
+extern int PsyX_SPUAL_SetReverbDepth(SpuReverbAttr* attr);
+extern int PsyX_SPUAL_SetReverbModeType(int mode);
+extern void PsyX_SPUAL_SetReverbModeDepth(short left, short right);
+extern int PsyX_SPUAL_ReserveReverbWorkArea(int on_off);
+extern int PsyX_SPUAL_IsReverbWorkAreaReserved(void);
+extern int PsyX_SPUAL_ClearReverbWorkArea(int mode);
 extern u_int PsyX_SPUAL_SetReverbVoice(int on_off, u_int voice_bit);
 extern u_int PsyX_SPUAL_GetReverbVoice();
+extern void PsyX_SPUAL_SetCommonAttr(SpuCommonAttr* attr);
+extern void PsyX_SPUAL_GetCommonAttr(SpuCommonAttr* attr);
+extern void PsyX_SPUAL_SetCommonMasterVolume(short left, short right);
+extern void PsyX_SPUAL_SetCommonCDMix(int enabled);
+extern void PsyX_SPUAL_SetCommonCDVolume(short left, short right);
+extern void PsyX_SPUAL_SetCommonCDReverb(int enabled);
 
 extern int PsyX_SPUAL_PlayXATrack(int categoryID, int xaID, int volumeLeft, int volumeRight);
 extern int PsyX_SPUAL_GetXATrackLength(int categoryID, int xaID);

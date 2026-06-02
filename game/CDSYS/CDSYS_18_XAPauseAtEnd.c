@@ -10,10 +10,31 @@ void CDSYS_XAPauseAtEnd()
 	if (sdata->boolUseDisc == 0)
 	{
 #if defined(CTR_NATIVE)
-		if (NativeAudio_IsXAPlaying() != 0)
+		if (sdata->XA_State == 4)
+		{
+			sdata->XA_VolumeBitshift -= sdata->XA_VolumeDeduct;
+			if (sdata->XA_VolumeBitshift <= 0)
+			{
+				sdata->XA_VolumeBitshift = 0;
+				NativeAudio_StopXA();
+				sdata->XA_boolFinished = 0;
+				sdata->XA_State = 0;
+				sdata->XA_PauseFrame = sdata->gGT->frameTimer_MainFrame_ResetDB;
+			}
+			else
+			{
+				NativeAudio_SetXAVolume((s16)sdata->XA_VolumeBitshift, (s16)sdata->XA_VolumeBitshift);
+				sdata->XA_CurrOffset++;
+			}
+		}
+		else if (NativeAudio_IsXAPlaying() != 0)
+		{
 			sdata->XA_CurrOffset++;
+		}
 		else
+		{
 			sdata->XA_State = 0;
+		}
 #endif
 		return;
 	}

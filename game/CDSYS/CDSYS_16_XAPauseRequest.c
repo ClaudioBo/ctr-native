@@ -10,10 +10,11 @@ void CDSYS_XAPauseRequest()
 	if (sdata->boolUseDisc == 0)
 	{
 #if defined(CTR_NATIVE)
-		NativeAudio_StopXA();
-		sdata->XA_State = 0;
-		sdata->XA_boolFinished = 0;
-		sdata->XA_PauseFrame = sdata->gGT->frameTimer_MainFrame_ResetDB;
+		if ((sdata->XA_State >= 2) && (sdata->XA_State <= 3))
+		{
+			sdata->XA_State = 4;
+			sdata->XA_VolumeDeduct = 0x400;
+		}
 #endif
 		return;
 	}

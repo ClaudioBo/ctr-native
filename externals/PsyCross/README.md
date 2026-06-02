@@ -8,7 +8,7 @@ Compatibility framework for building and running Psy-Q SDK - based Playstation g
 - Psy-Q - compatible headers
 - Implements Geometry Transformation Engine (GTE) in software and adapts it's macros and calls
 - Optimized Precise GTE Vertex Cache with *modern 3D hardware perspective transform* and *Z-buffer* support (PGXP-Z)
-- *LibSPU* with ADPCM decoding on OpenAL (SPU-AL)
+- *LibSPU* interface; ctr-native supplies the SDL PCM mixer backend
 - *LibGPU* with Playstation-style polygon and image handling
 - *LibCD* with ISO 9660 BIN/CUE image support by Playstation CD API
 - Already proven to be *95% compatible* with the Psy-Q Playstation SDK - Psy-X game look almost identical to the Playstation game
@@ -24,16 +24,14 @@ Compatibility framework for building and running Psy-Q SDK - based Playstation g
 - `include/PsyX`: PsyCross interfaces (**window management, configuration, renderer, PGXP-Z**)
 
 ### Dependencies
-- OpenAL-soft (1.21.x or newer)
 - SDL2 (2.0.16 or newer)
 
 ## TODO
 - CMake dependency/build scripts
 - Add some missing **LibGTE** functions
 - MDEC implementation in **LibPress**
-- CD Audio/XA decoding and playback
-- SPU Attack-Decay-Sustain-Release (ADSR) support, *maybe through own mixer?*
+- SPU Attack-Decay-Sustain-Release (ADSR) support
 
 ### Credits
-- SoapyMan - more GTE functions, SPU-AL, PGXP-Z
+- SoapyMan - more GTE functions, SPU backend, PGXP-Z
 - Gh0stBlade - original source/base [(link)](https://github.com/TOMB5/TOMB5/tree/master/EMULATOR)

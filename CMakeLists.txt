@@ -38,29 +38,18 @@ set(SDL_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(externals/SDL)
 target_include_directories(SDL2-static PUBLIC externals/SDL/include)
 
-# OpenAL
-set(LIBTYPE STATIC CACHE STRING "" FORCE)
-set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(ALSOFT_TESTS OFF CACHE BOOL "" FORCE)
-set(ALSOFT_UTILS OFF CACHE BOOL "" FORCE)
-set(ALSOFT_INSTALL OFF CACHE BOOL "" FORCE)
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "" FORCE)
-add_subdirectory(externals/openal-soft)
-set_target_properties(OpenAL PROPERTIES CXX_STANDARD 17)
-target_include_directories(OpenAL PUBLIC externals/openal-soft/include)
-
 # PsyCross
 file(GLOB_RECURSE PSYCROSS_C externals/PsyCross/*.c externals/PsyCross/*.C)
 file(GLOB_RECURSE PSYCROSS_CPP externals/PsyCross/*.cpp)
+list(REMOVE_ITEM PSYCROSS_CPP ${CMAKE_SOURCE_DIR}/externals/PsyCross/src/audio/PsyX_SPUAL.cpp)
 set_source_files_properties(${PSYCROSS_C} PROPERTIES LANGUAGE C)
 set_source_files_properties(${PSYCROSS_CPP} PROPERTIES LANGUAGE CXX)
 add_library(psycross STATIC ${PSYCROSS_C} ${PSYCROSS_CPP})
 target_include_directories(psycross PUBLIC externals/PsyCross/include externals/PsyCross)
 target_compile_definitions(psycross PRIVATE USE_EXTENDED_PRIM_POINTERS=0)
-target_include_directories(psycross PRIVATE externals/SDL/include externals/openal-soft/include)
-target_link_libraries(psycross SDL2-static OpenAL)
+target_include_directories(psycross PRIVATE externals/SDL/include)
+target_link_libraries(psycross SDL2-static)
 
-# TODO(aalhendi): handle symbol conflict in a better way
 if(WIN32)
     set(_P "_")
 else()
@@ -68,18 +57,11 @@ else()
 endif()
 add_custom_command(TARGET psycross POST_BUILD
     COMMAND ${CMAKE_OBJCOPY}
-        --redefine-sym ${_P}alGenEffects=${_P}_psx_alGenEffects
-        --redefine-sym ${_P}alEffectf=${_P}_psx_alEffectf
-        --redefine-sym ${_P}alEffecti=${_P}_psx_alEffecti
-        --redefine-sym ${_P}alGenAuxiliaryEffectSlots=${_P}_psx_alGenAuxiliaryEffectSlots
-        --redefine-sym ${_P}alDeleteAuxiliaryEffectSlots=${_P}_psx_alDeleteAuxiliaryEffectSlots
-        --redefine-sym ${_P}alDeleteEffects=${_P}_psx_alDeleteEffects
-        --redefine-sym ${_P}alAuxiliaryEffectSloti=${_P}_psx_alAuxiliaryEffectSloti
         --redefine-sym ${_P}VSync=${_P}_psx_VSync
         --redefine-sym ${_P}VSyncCallback=${_P}_psx_VSyncCallback
         $<TARGET_FILE:psycross> $<TARGET_FILE:psycross>.fixed
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:psycross>.fixed $<TARGET_FILE:psycross>
-    COMMENT "Renaming conflicting OpenAL EFX symbols in psycross"
+    COMMENT "Renaming conflicting PsyCross VSync symbol"
 )
 
 # CTR Native
@@ -93,7 +75,7 @@ target_compile_definitions(ctr_native PRIVATE
     CTR_INTERNAL
 )
 target_compile_options(ctr_native PRIVATE -O2)
-target_link_libraries(ctr_native OpenAL psycross SDL2-static)
+target_link_libraries(ctr_native psycross SDL2-static)
 if(WIN32)
     target_link_options(ctr_native PRIVATE -static -static-libgcc -static-libstdc++ -Wl,--image-base,0x400000 -Wl,--disable-dynamicbase -Wl,--disable-reloc-section)
 else()

@@ -8,7 +8,7 @@ A native PC port of Crash Team Racing (PS1, 1999), built on top of the [CTR-ModS
 - **No PSX toolchain.** Targets Windows and Linux with SDL2 + PsyCross. No MIPS compiler needed.
 - **Clean platform layer.** Game code calls through `platform.h`. SDL/PsyCross details stay in `ctr_native.c`.
 - **No build system nonsense.** Just `build.bat` / `build.sh`.
-- **Fully static build.** Single executable, zero dependencies. SDL2, OpenAL, and PsyCross are compiled from vendored source and linked statically.
+- **Fully static build.** Single executable, zero dependencies. SDL2 and PsyCross are compiled from vendored source and linked statically.
 
 ## Directory Layout
 
@@ -26,7 +26,6 @@ ctr_native/
   externals/
     PsyCross/         PS1 hardware abstraction (GPU, GTE, SPU, CD)
     SDL/              SDL2 source (static build)
-    openal-soft/      OpenAL source (static build)
 ```
 
 ## Prerequisites
@@ -40,7 +39,7 @@ ctr_native/
    ```
 3. Add `C:\msys64\mingw32\bin` to your system PATH
 
-That's it. SDL2 and OpenAL are compiled from vendored source — no separate install needed.
+That's it. SDL2 is compiled from vendored source — no separate install needed.
 
 ### Linux (Debian/Ubuntu)
 
@@ -57,7 +56,7 @@ chmod +x build.sh
 ./build.sh           # Linux
 ```
 
-First build compiles SDL2, OpenAL, and PsyCross from source (~2-3 min). These are cached as static libraries in `build/` — subsequent builds only recompile `ctr_native.c`.
+First build compiles SDL2 and PsyCross from source. These are cached as static libraries in `build/` — subsequent builds only recompile touched native sources.
 
 Output: `build/ctr_native.exe` (Windows) or `build/ctr_native` (Linux)
 
@@ -101,7 +100,8 @@ ctr_native.c (platform layer)
   +-- PsyCross (PS1 hardware abstraction: GPU, GTE, SPU, CD)
   |     |
   |     +-- SDL2 (window, input, timing)
-  |     +-- OpenAL (audio)
+  |
+  +-- platform/native_audio.c (SDL PCM output, native SPU/XA mixer state)
   |
   +-- game_includes.h
         |
@@ -123,5 +123,4 @@ ctr_native.c (platform layer)
 - [CTR-ModSDK](https://github.com/CTR-tools/CTR-ModSDK) — the decompilation project this is built on
 - [PsyCross](https://github.com/OpenDriver2/PsyCross) — PS1 hardware abstraction layer
 - [SDL2](https://github.com/libsdl-org/SDL) — cross-platform multimedia
-- [openal-soft](https://github.com/kcat/openal-soft) — 3D audio API
 - Crash Team Racing is a trademark of Sony Computer Entertainment / Naughty Dog

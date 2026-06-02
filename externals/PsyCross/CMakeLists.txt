@@ -22,7 +22,3 @@ target_include_directories(psycross_static PUBLIC "include" "include/psx")
 find_package(SDL2 REQUIRED)
 target_link_libraries(psycross_static ${SDL2_LIBRARIES})
 target_include_directories(psycross_static PRIVATE ${SDL2_INCLUDE_DIRS})
-
-find_package(OpenAL REQUIRED)
-target_link_libraries(psycross_static OpenAL)
-target_include_directories(psycross_static PRIVATE ${OpenAL_BINARY_DIR} ${OpenAL_SOURCE_DIR}/include)

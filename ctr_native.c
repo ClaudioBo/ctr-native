@@ -104,6 +104,7 @@ typedef enum
 
 #include "ctr_native.h"
 #include "platform.h"
+#include "platform/native_audio.h"
 
 #ifndef CTR_NATIVE_MEMPACK_RETAIL_PRESSURE
 #define CTR_NATIVE_MEMPACK_RETAIL_PRESSURE 0
@@ -406,6 +407,7 @@ int VSync(int mode)
 		if (s_nativeVSyncCallback != NULL)
 			s_nativeVSyncCallback();
 
+		NativeAudio_StepVBlank();
 		s_nativeVBlankCount++;
 	}
 

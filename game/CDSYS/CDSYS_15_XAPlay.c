@@ -16,13 +16,16 @@ int CDSYS_XAPlay(int categoryID, int xaID)
 		int nativeVol = (categoryID == CDSYS_XA_TYPE_MUSIC) ? sdata->vol_Music : sdata->vol_Voice;
 
 		// NOTE(aalhendi): Native PCDRV has no CD-XA IRQ stream. Feed extracted
-		// XA assets to OpenAL and synthesize the minimal retail XA state gates.
+		// XA assets to the native SDL mixer and synthesize the minimal retail XA
+		// state gates.
 		if (NativeAudio_PlayXATrack(categoryID, xaID, nativeVol << 7, nativeVol << 7) == 0)
 			return 0;
 
 		sdata->XA_State = 3;
 		sdata->XA_Playing_Index = xaID;
 		sdata->XA_Playing_Category = categoryID;
+		sdata->XA_VolumeBitshift = nativeVol << 7;
+		sdata->XA_boolFinished = 0;
 		sdata->XA_CurrOffset = 0;
 		return 1;
 #endif
