@@ -1,24 +1,12 @@
 #include <platform/native_audio.h>
 
-#include "psx/libspu.h"
-#include "psx/types.h"
-
 #include <SDL2/SDL.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 
-// TODO(aalhendi): unify defs with a base layer!
-typedef int8_t s8;
-typedef int16_t s16;
-typedef int32_t s32;
-typedef int32_t b32;
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
+typedef s32 b32;
 
 #define NATIVE_AUDIO_SAMPLE_RATE       44100
 #define NATIVE_AUDIO_CHANNELS          2
@@ -125,8 +113,8 @@ struct NativeAudioVoice
 	u8 adsrPhase;
 };
 
-// TODO(aalhendi): Add fuller PS1 SPU reverb/noise behavior when audible
-// evidence shows CTR needs it.
+// TODO(aalhendi): Implement PS1 SPU reverb mixing. CTR uses reverb
+// modes and per-voice reverb flags; SPU noise controls are unused by NTSC-U 926.
 
 struct NativeAudioXA
 {
@@ -302,7 +290,7 @@ static int NativeAudio_ApplyVolume(int sample, s16 volume, s16 masterVolume)
 {
 	int scaledVolume = NativeAudio_VolumeScale(volume);
 	int scaledMasterVolume = NativeAudio_VolumeScale(masterVolume);
-	return (int)(((int64_t)sample * scaledVolume * scaledMasterVolume) / (NATIVE_AUDIO_DIRECT_VOL_MAX * NATIVE_AUDIO_DIRECT_VOL_MAX));
+	return (int)(((s64)sample * scaledVolume * scaledMasterVolume) / (NATIVE_AUDIO_DIRECT_VOL_MAX * NATIVE_AUDIO_DIRECT_VOL_MAX));
 }
 
 static s16 NativeAudio_GetVoicePcmSample(const struct NativeAudioVoice *voice, int sampleIndex)
@@ -456,7 +444,7 @@ static void NativeAudio_AdsrRunEnvelopeStep(struct NativeAudioVoice *voice, int 
 	}
 	else if (exponential && decreasing)
 	{
-		adsrStep = (int)(((int64_t)adsrStep * voice->adsrLevel) / 0x8000);
+		adsrStep = (int)(((s64)adsrStep * voice->adsrLevel) / 0x8000);
 		if (voice->adsrPhase == NATIVE_AUDIO_ADSR_RELEASE && adsrStep == 0 && voice->adsrLevel > 0)
 			adsrStep = -1;
 	}
@@ -575,7 +563,7 @@ static int NativeAudio_ApplyAdsrEnvelope(int sample, int adsrLevel)
 		return sample;
 
 	scaleMax = adsrLevel < 0 ? 0x8000 : NATIVE_AUDIO_ADSR_MAX;
-	return NativeAudio_Clamp16((int)(((int64_t)sample * adsrLevel) / scaleMax));
+	return NativeAudio_Clamp16((int)(((s64)sample * adsrLevel) / scaleMax));
 }
 
 static void NativeAudio_UpdatePackedAdsrFromFields(struct NativeAudioVoice *voice)
@@ -1939,7 +1927,7 @@ static int NativeAudio_OpenDevice(void)
 	return 1;
 }
 
-int PsyX_SPUAL_InitSound(void)
+s32 NativeAudio_SpuInit(void)
 {
 	if (!s_audio.init)
 	{
@@ -1960,111 +1948,9 @@ int PsyX_SPUAL_InitSound(void)
 	return 1;
 }
 
-void PsyX_SPUAL_ShutdownSound(void)
+u32 NativeAudio_SpuSetTransferStartAddr(u32 addr)
 {
-	int i;
-
-	if (s_audio.output.device != 0)
-	{
-		SDL_CloseAudioDevice(s_audio.output.device);
-		s_audio.output.device = 0;
-	}
-
-	for (i = 0; i < NATIVE_AUDIO_SPU_VOICE_COUNT; i++)
-		NativeAudio_FreeVoicePcm(&s_audio.voices[i]);
-
-	NativeAudio_FreeXA();
-	NativeAudio_ArenaFree(&s_audio.voicePcmArena);
-	NativeAudio_ArenaFree(&s_audio.xaPcmArena);
-	NativeAudio_ArenaFree(&s_audio.xaPendingPcmArena);
-	memset(&s_audio, 0, sizeof(s_audio));
-}
-
-int PsyX_SPUAL_Alloc(int size)
-{
-	int addr;
-	int nextAddr;
-
-	if (size <= 0)
-		return -1;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	addr = s_audio.spu.allocCursor;
-	if ((addr < 0) || (addr > NATIVE_AUDIO_SPU_MEMSIZE) || (size > NATIVE_AUDIO_SPU_MEMSIZE - addr))
-	{
-		if (s_audio.output.device != 0)
-			SDL_UnlockAudioDevice(s_audio.output.device);
-		return -1;
-	}
-
-	nextAddr = addr + size;
-	s_audio.spu.allocCursor = nextAddr;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return addr;
-}
-
-int PsyX_SPUAL_AllocWithStartAddr(u_int addr, int size)
-{
-	u_int nextAddr;
-
-	if (size <= 0)
-		return -1;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	if (addr > NATIVE_AUDIO_SPU_MEMSIZE)
-	{
-		if (s_audio.output.device != 0)
-			SDL_UnlockAudioDevice(s_audio.output.device);
-		return -1;
-	}
-
-	if (((int)addr < s_audio.spu.allocCursor) || ((u_int)size > ((u_int)NATIVE_AUDIO_SPU_MEMSIZE - addr)))
-	{
-		if (s_audio.output.device != 0)
-			SDL_UnlockAudioDevice(s_audio.output.device);
-		return -1;
-	}
-
-	nextAddr = addr + (u_int)size;
-	s_audio.spu.allocCursor = nextAddr;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return (int)addr;
-}
-
-int PsyX_SPUAL_InitAlloc(int num, char *top)
-{
-	(void)num;
-	(void)top;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	s_audio.spu.allocCursor = 0;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return 0;
-}
-
-void PsyX_SPUAL_Free(u_int addr)
-{
-	(void)addr;
-}
-
-u_int PsyX_SPUAL_SetTransferStartAddr(u_int addr)
-{
-	u_int result;
+	u32 result;
 
 	if (addr > NATIVE_AUDIO_SPU_MEMSIZE)
 		return 0;
@@ -2081,7 +1967,7 @@ u_int PsyX_SPUAL_SetTransferStartAddr(u_int addr)
 	return result;
 }
 
-u_int PsyX_SPUAL_Write(u_char *addr, u_int size)
+u32 NativeAudio_SpuWrite(const u8 *addr, u32 size)
 {
 	int wptrOfs;
 
@@ -2089,7 +1975,7 @@ u_int PsyX_SPUAL_Write(u_char *addr, u_int size)
 		SDL_LockAudioDevice(s_audio.output.device);
 
 	wptrOfs = s_audio.spu.transferOffset;
-	if ((addr == NULL) || (size == 0) || (size > (u_int)NATIVE_AUDIO_SPU_MEMSIZE) || (wptrOfs < 0) || (size > (u_int)(NATIVE_AUDIO_SPU_MEMSIZE - wptrOfs)))
+	if ((addr == NULL) || (size == 0) || (size > (u32)NATIVE_AUDIO_SPU_MEMSIZE) || (wptrOfs < 0) || (size > (u32)(NATIVE_AUDIO_SPU_MEMSIZE - wptrOfs)))
 	{
 		if (s_audio.output.device != 0)
 			SDL_UnlockAudioDevice(s_audio.output.device);
@@ -2105,61 +1991,7 @@ u_int PsyX_SPUAL_Write(u_char *addr, u_int size)
 	return size;
 }
 
-u_int PsyX_SPUAL_Read(u_char *addr, u_int size)
-{
-	int rptrOfs;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	rptrOfs = s_audio.spu.transferOffset;
-	if ((addr == NULL) || (size == 0) || (size > (u_int)NATIVE_AUDIO_SPU_MEMSIZE) || (rptrOfs < 0) || (size > (u_int)(NATIVE_AUDIO_SPU_MEMSIZE - rptrOfs)))
-	{
-		if (s_audio.output.device != 0)
-			SDL_UnlockAudioDevice(s_audio.output.device);
-		return 0;
-	}
-
-	memcpy(addr, &s_audio.spu.memory[rptrOfs], size);
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return size;
-}
-
-void PsyX_SPUAL_GetVoiceVolume(int vNum, short *volL, short *volR)
-{
-	if ((vNum < 0) || (vNum >= NATIVE_AUDIO_SPU_VOICE_COUNT))
-		return;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	if (volL != NULL)
-		*volL = s_audio.voices[vNum].attr.volume.left;
-	if (volR != NULL)
-		*volR = s_audio.voices[vNum].attr.volume.right;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-}
-
-void PsyX_SPUAL_GetVoicePitch(int vNum, u_short *pitch)
-{
-	if ((vNum < 0) || (vNum >= NATIVE_AUDIO_SPU_VOICE_COUNT) || (pitch == NULL))
-		return;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	*pitch = s_audio.voices[vNum].attr.pitch;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-}
-
-void PsyX_SPUAL_SetVoiceAttr(SpuVoiceAttr *psxAttrib)
+void NativeAudio_SpuSetVoiceAttr(SpuVoiceAttr *psxAttrib)
 {
 	int i;
 
@@ -2228,7 +2060,7 @@ void PsyX_SPUAL_SetVoiceAttr(SpuVoiceAttr *psxAttrib)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-void PsyX_SPUAL_SetKey(int on_off, u_int voice_bit)
+void NativeAudio_SpuSetKey(s32 on_off, u32 voice_bit)
 {
 	int i;
 
@@ -2272,63 +2104,7 @@ void PsyX_SPUAL_SetKey(int on_off, u_int voice_bit)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-int PsyX_SPUAL_GetKeyStatus(u_int voice_bit)
-{
-	int i;
-	b32 active = 0;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	for (i = 0; i < NATIVE_AUDIO_SPU_VOICE_COUNT; i++)
-	{
-		if (voice_bit == SPU_VOICECH(i))
-		{
-			active = s_audio.voices[i].active;
-			break;
-		}
-	}
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return active;
-}
-
-void PsyX_SPUAL_GetAllKeysStatus(char *status)
-{
-	int i;
-
-	if (status == NULL)
-		return;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	for (i = 0; i < NATIVE_AUDIO_SPU_VOICE_COUNT; i++)
-		status[i] = s_audio.voices[i].active != 0;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-}
-
-int PsyX_SPUAL_SetMute(int on_off)
-{
-	int oldState;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	oldState = s_audio.muted;
-	s_audio.muted = on_off;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return oldState;
-}
-
-int PsyX_SPUAL_SetReverb(int on_off)
+s32 NativeAudio_SpuSetReverb(s32 on_off)
 {
 	int oldState;
 
@@ -2344,22 +2120,7 @@ int PsyX_SPUAL_SetReverb(int on_off)
 	return oldState;
 }
 
-int PsyX_SPUAL_GetReverbState(void)
-{
-	int state;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	state = s_audio.reverbEnabled;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return state;
-}
-
-int PsyX_SPUAL_SetReverbModeParam(SpuReverbAttr *attr)
+s32 NativeAudio_SpuSetReverbModeParam(SpuReverbAttr *attr)
 {
 	if (attr == NULL)
 		return SPU_INVALID_ARGS;
@@ -2385,61 +2146,7 @@ int PsyX_SPUAL_SetReverbModeParam(SpuReverbAttr *attr)
 	return SPU_SUCCESS;
 }
 
-void PsyX_SPUAL_GetReverbModeParam(SpuReverbAttr *attr)
-{
-	if (attr == NULL)
-		return;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	*attr = s_audio.reverbAttr;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-}
-
-int PsyX_SPUAL_SetReverbDepth(SpuReverbAttr *attr)
-{
-	if (attr == NULL)
-		return SPU_INVALID_ARGS;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	if ((attr->mask == 0) || (attr->mask & SPU_REV_DEPTHL))
-		s_audio.reverbAttr.depth.left = attr->depth.left;
-	if ((attr->mask == 0) || (attr->mask & SPU_REV_DEPTHR))
-		s_audio.reverbAttr.depth.right = attr->depth.right;
-	s_audio.reverbAttr.mask |= SPU_REV_DEPTHL | SPU_REV_DEPTHR;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return SPU_SUCCESS;
-}
-
-int PsyX_SPUAL_SetReverbModeType(int mode)
-{
-	int oldMode;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	oldMode = s_audio.reverbAttr.mode;
-	if (mode != SPU_REV_MODE_CHECK)
-	{
-		s_audio.reverbAttr.mode = mode;
-		s_audio.reverbAttr.mask |= SPU_REV_MODE;
-	}
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return oldMode;
-}
-
-void PsyX_SPUAL_SetReverbModeDepth(short left, short right)
+void NativeAudio_SpuSetReverbModeDepth(s16 left, s16 right)
 {
 	if (s_audio.output.device != 0)
 		SDL_LockAudioDevice(s_audio.output.device);
@@ -2452,44 +2159,7 @@ void PsyX_SPUAL_SetReverbModeDepth(short left, short right)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-int PsyX_SPUAL_ReserveReverbWorkArea(int on_off)
-{
-	int oldState;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	oldState = s_audio.reverbWorkAreaReserved;
-	s_audio.reverbWorkAreaReserved = on_off != 0;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return oldState;
-}
-
-int PsyX_SPUAL_IsReverbWorkAreaReserved(void)
-{
-	int state;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	state = s_audio.reverbWorkAreaReserved;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return state;
-}
-
-int PsyX_SPUAL_ClearReverbWorkArea(int mode)
-{
-	(void)mode;
-	return SPU_SUCCESS;
-}
-
-u_int PsyX_SPUAL_SetReverbVoice(int on_off, u_int voice_bit)
+u32 NativeAudio_SpuSetReverbVoice(s32 on_off, u32 voice_bit)
 {
 	int i;
 
@@ -2513,96 +2183,7 @@ u_int PsyX_SPUAL_SetReverbVoice(int on_off, u_int voice_bit)
 	return 0;
 }
 
-u_int PsyX_SPUAL_GetReverbVoice(void)
-{
-	u_int voiceBits;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	voiceBits = s_audio.reverbVoiceBits;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-
-	return voiceBits;
-}
-
-void PsyX_SPUAL_SetCommonAttr(SpuCommonAttr *attr)
-{
-	if (attr == NULL)
-		return;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	if (attr->mask & SPU_COMMON_MVOLL)
-	{
-		s_audio.masterVolumeLeft = attr->mvol.left;
-		s_audio.commonAttr.mvol.left = attr->mvol.left;
-	}
-	if (attr->mask & SPU_COMMON_MVOLR)
-	{
-		s_audio.masterVolumeRight = attr->mvol.right;
-		s_audio.commonAttr.mvol.right = attr->mvol.right;
-	}
-	if (attr->mask & SPU_COMMON_MVOLMODEL)
-		s_audio.commonAttr.mvolmode.left = attr->mvolmode.left;
-	if (attr->mask & SPU_COMMON_MVOLMODER)
-		s_audio.commonAttr.mvolmode.right = attr->mvolmode.right;
-	if (attr->mask & SPU_COMMON_RVOLL)
-		s_audio.commonAttr.mvolx.left = attr->mvolx.left;
-	if (attr->mask & SPU_COMMON_RVOLR)
-		s_audio.commonAttr.mvolx.right = attr->mvolx.right;
-	if (attr->mask & SPU_COMMON_CDVOLL)
-	{
-		s_audio.xa.volumeLeft = attr->cd.volume.left;
-		s_audio.commonAttr.cd.volume.left = attr->cd.volume.left;
-	}
-	if (attr->mask & SPU_COMMON_CDVOLR)
-	{
-		s_audio.xa.volumeRight = attr->cd.volume.right;
-		s_audio.commonAttr.cd.volume.right = attr->cd.volume.right;
-	}
-	if (attr->mask & SPU_COMMON_CDREV)
-	{
-		s_audio.cdReverbEnabled = attr->cd.reverb != 0;
-		s_audio.commonAttr.cd.reverb = attr->cd.reverb;
-	}
-	if (attr->mask & SPU_COMMON_CDMIX)
-	{
-		s_audio.cdMixEnabled = attr->cd.mix != 0;
-		s_audio.commonAttr.cd.mix = attr->cd.mix;
-	}
-	if (attr->mask & SPU_COMMON_EXTVOLL)
-		s_audio.commonAttr.ext.volume.left = attr->ext.volume.left;
-	if (attr->mask & SPU_COMMON_EXTVOLR)
-		s_audio.commonAttr.ext.volume.right = attr->ext.volume.right;
-	if (attr->mask & SPU_COMMON_EXTREV)
-		s_audio.commonAttr.ext.reverb = attr->ext.reverb;
-	if (attr->mask & SPU_COMMON_EXTMIX)
-		s_audio.commonAttr.ext.mix = attr->ext.mix;
-	s_audio.commonAttr.mask |= attr->mask;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-}
-
-void PsyX_SPUAL_GetCommonAttr(SpuCommonAttr *attr)
-{
-	if (attr == NULL)
-		return;
-
-	if (s_audio.output.device != 0)
-		SDL_LockAudioDevice(s_audio.output.device);
-
-	*attr = s_audio.commonAttr;
-
-	if (s_audio.output.device != 0)
-		SDL_UnlockAudioDevice(s_audio.output.device);
-}
-
-void PsyX_SPUAL_SetCommonMasterVolume(short left, short right)
+void NativeAudio_SpuSetCommonMasterVolume(s16 left, s16 right)
 {
 	if (s_audio.output.device != 0)
 		SDL_LockAudioDevice(s_audio.output.device);
@@ -2617,7 +2198,7 @@ void PsyX_SPUAL_SetCommonMasterVolume(short left, short right)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-void PsyX_SPUAL_SetCommonCDMix(int enabled)
+void NativeAudio_SpuSetCommonCDMix(s32 enabled)
 {
 	if (s_audio.output.device != 0)
 		SDL_LockAudioDevice(s_audio.output.device);
@@ -2630,7 +2211,7 @@ void PsyX_SPUAL_SetCommonCDMix(int enabled)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-void PsyX_SPUAL_SetCommonCDVolume(short left, short right)
+void NativeAudio_SpuSetCommonCDVolume(s16 left, s16 right)
 {
 	if (s_audio.output.device != 0)
 		SDL_LockAudioDevice(s_audio.output.device);
@@ -2645,7 +2226,7 @@ void PsyX_SPUAL_SetCommonCDVolume(short left, short right)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-void PsyX_SPUAL_SetCommonCDReverb(int enabled)
+void NativeAudio_SpuSetCommonCDReverb(s32 enabled)
 {
 	if (s_audio.output.device != 0)
 		SDL_LockAudioDevice(s_audio.output.device);
@@ -2658,7 +2239,7 @@ void PsyX_SPUAL_SetCommonCDReverb(int enabled)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-int PsyX_SPUAL_GetXATrackLength(int categoryID, int xaID)
+int NativeAudio_GetXATrackLength(int categoryID, int xaID)
 {
 	struct NativeAudioXaTrackInfo info;
 
@@ -2668,7 +2249,7 @@ int PsyX_SPUAL_GetXATrackLength(int categoryID, int xaID)
 	return info.numSectors;
 }
 
-void PsyX_SPUAL_StopXA(void)
+void NativeAudio_StopXA(void)
 {
 	if (s_audio.output.device != 0)
 		SDL_LockAudioDevice(s_audio.output.device);
@@ -2694,7 +2275,7 @@ void NativeAudio_SetXAVolume(int volumeLeft, int volumeRight)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 }
 
-int PsyX_SPUAL_IsXAPlaying(void)
+int NativeAudio_IsXAPlaying(void)
 {
 	int playing;
 
@@ -2709,13 +2290,13 @@ int PsyX_SPUAL_IsXAPlaying(void)
 	return playing;
 }
 
-int PsyX_SPUAL_PlayXATrack(int categoryID, int xaID, int volumeLeft, int volumeRight)
+int NativeAudio_PlayXATrack(int categoryID, int xaID, int volumeLeft, int volumeRight)
 {
 	s16 *pcm;
 	int sampleRate;
 	int frameCount;
 
-	if (!PsyX_SPUAL_InitSound())
+	if (!NativeAudio_SpuInit())
 		return 0;
 
 	if (!NativeAudio_LoadXATrackPcm(&s_audio.xaPendingPcmArena, categoryID, xaID, &pcm, &frameCount, &sampleRate))
@@ -2745,21 +2326,6 @@ int PsyX_SPUAL_PlayXATrack(int categoryID, int xaID, int volumeLeft, int volumeR
 		SDL_UnlockAudioDevice(s_audio.output.device);
 
 	return 1;
-}
-
-int NativeAudio_PlayXATrack(int categoryID, int xaID, int volumeLeft, int volumeRight)
-{
-	return PsyX_SPUAL_PlayXATrack(categoryID, xaID, volumeLeft, volumeRight);
-}
-
-int NativeAudio_GetXATrackLength(int categoryID, int xaID)
-{
-	return PsyX_SPUAL_GetXATrackLength(categoryID, xaID);
-}
-
-int NativeAudio_IsXAPlaying(void)
-{
-	return PsyX_SPUAL_IsXAPlaying();
 }
 
 int NativeAudio_GetXACurrOffset(void)
@@ -2833,9 +2399,4 @@ int NativeAudio_GetXAMaxSample(void)
 		SDL_UnlockAudioDevice(s_audio.output.device);
 
 	return max;
-}
-
-void NativeAudio_StopXA(void)
-{
-	PsyX_SPUAL_StopXA();
 }

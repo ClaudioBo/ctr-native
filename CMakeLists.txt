@@ -21,6 +21,7 @@ set(GAME_SOURCES
     platform/native_audio.c
     platform/native_input.c
     platform/native_libpad.c
+    platform/native_libspu.c
     platform/native_memcard.c
 )
 
@@ -50,7 +51,6 @@ set(PSYCROSS_C
     externals/PsyCross/src/psx/LIBGPU.C
     externals/PsyCross/src/psx/LIBGTE.C
     externals/PsyCross/src/psx/LIBSN.C
-    externals/PsyCross/src/psx/LIBSPU.C
     externals/PsyCross/src/render/glad.c
 )
 set(PSYCROSS_CPP
