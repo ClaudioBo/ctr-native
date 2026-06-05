@@ -218,7 +218,10 @@ static void SelectProfile_DrawGhostRows(struct RectMenu *menu, int rowCount, int
 		if (rowCount > 6)
 			drawStyle |= 0x40;
 
-		if ((profile != NULL) && (profile->trackID != sdata->gGT->levelID))
+		// NOTE(aalhendi): Retail compares against GameTracker.currLEV
+		// (0x1eb0). Ghost selection happens before QueueLoadTrack, so
+		// levelID still refers to the previously loaded level.
+		if ((profile != NULL) && (profile->trackID != sdata->gGT->currLEV))
 			isWrongTrack = sdata->memcardAction != 1;
 
 		SelectProfile_DrawGhostProfile(profile, x, y, i == menu->rowSelected, i, drawStyle, sdata->memcardAction == 0, isWrongTrack);
@@ -365,7 +368,9 @@ static void SelectProfile_StartLoadGhost(struct RectMenu *menu, int rowCount)
 		return;
 	}
 
-	if (sdata->ghostProfile_memcard[menu->rowSelected].trackID == sdata->gGT->levelID)
+	// NOTE(aalhendi): Retail uses currLEV here; levelID is not updated to the
+	// selected Time Trial track until the queued load starts.
+	if (sdata->ghostProfile_memcard[menu->rowSelected].trackID == sdata->gGT->currLEV)
 	{
 		sdata->ghostProfile_indexLoad = menu->rowSelected;
 		RefreshCard_StartMemcardAction(5);
