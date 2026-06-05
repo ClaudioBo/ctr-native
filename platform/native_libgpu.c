@@ -243,9 +243,9 @@ void SetDrawMove(DR_MOVE *p, RECT16 *rect, int x, int y)
 
 	p->code[0] = 0x1000000;
 	p->code[1] = 0x80000000;
-	p->code[2] = *(uint *)&rect->x;
+	p->code[2] = ((u32)(u16)rect->x) | ((u32)(u16)rect->y << 16);
 	p->code[3] = (y << 0x10) | (x & 0xffffU);
-	p->code[4] = *(uint *)&rect->w;
+	p->code[4] = ((u32)(u16)rect->w) | ((u32)(u16)rect->h << 16);
 
 	setlen(p, len);
 }

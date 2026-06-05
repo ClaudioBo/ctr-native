@@ -1635,13 +1635,17 @@ int ParsePrimitive(P_TAG *polyTag)
 		else if (primSubType == 0x1)
 		{
 			DR_MOVE *drmove = (DR_MOVE *)polyTag;
+			const u32 rectPos = drmove->code[2];
+			const u32 rectSize = drmove->code[4];
 
 			const int y = drmove->code[3] >> 0x10 & 0xFFFF;
 			const int x = drmove->code[3] & 0xFFFF;
 
 			RECT16 rect;
-			*(u32 *)&rect.x = *(u32 *)&drmove->code[2];
-			*(u32 *)&rect.w = *(u32 *)&drmove->code[4];
+			rect.x = (s16)(rectPos & 0xffff);
+			rect.y = (s16)(rectPos >> 16);
+			rect.w = (s16)(rectSize & 0xffff);
+			rect.h = (s16)(rectSize >> 16);
 
 			MoveImage(&rect, x, y);
 			primLength = 5;
@@ -1689,10 +1693,14 @@ int ParsePrimitive(P_TAG *polyTag)
 		// DR_LOAD
 		{
 			DR_LOAD *drload = (DR_LOAD *)polyTag;
+			const u32 rectPos = drload->code[1];
+			const u32 rectSize = drload->code[2];
 
 			RECT16 rect;
-			*(u32 *)&rect.x = *(u32 *)&drload->code[1];
-			*(u32 *)&rect.w = *(u32 *)&drload->code[2];
+			rect.x = (s16)(rectPos & 0xffff);
+			rect.y = (s16)(rectPos >> 16);
+			rect.w = (s16)(rectSize & 0xffff);
+			rect.h = (s16)(rectSize >> 16);
 
 			LoadImage(&rect, (u_long *)drload->p);
 

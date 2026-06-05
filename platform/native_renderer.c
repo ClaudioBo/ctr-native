@@ -1381,8 +1381,12 @@ void NativeRenderer_CopyVRAM(u16 *src, int x, int y, int w, int h, int dst_x, in
 
 	if (!src)
 	{
-		s_framebufferNeedsUpdate = 1;
-
+		// NOTE(aalhendi): MoveImage copies from PS1 VRAM. If native has a pending
+		// host framebuffer readback, pull it into the CPU VRAM mirror before the
+		// copy. Do not schedule a later readback here; boot TIM display moves are
+		// immediately followed by DrawSync, and a deferred black backbuffer read can
+		// wipe the copied splash page.
+		NativeRenderer_ReadFramebufferDataToVRAM();
 		src = vram;
 		stride = VRAM_WIDTH;
 	}
